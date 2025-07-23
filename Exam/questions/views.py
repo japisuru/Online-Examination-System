@@ -1,3 +1,6 @@
+import requests
+import json
+from .question_models import Question_DB
 from django.shortcuts import render,redirect
 from django.contrib.auth.models import User
 from .models import *
@@ -9,6 +12,8 @@ from questions.questionpaper_models import QPForm
 from questions.question_models import QForm
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.contrib import messages
 
 def has_group(user, group_name):
     group = Group.objects.get(name=group_name)
@@ -32,7 +37,10 @@ def view_exams_prof(request):
                 form.save_m2m()
                 return redirect('view_exams')
 
-        exams = Exam_Model.objects.filter(professor=prof)
+        try:
+            exams = Exam_Model.objects.filter(professor=prof)
+        except Exam_Model.DoesNotExist:
+            exams = {}
         return render(request, 'exam/mainexam.html', {
             'exams': exams, 'examform': new_Form, 'prof': prof,
         })
@@ -57,7 +65,10 @@ def add_question_paper(request):
                 form.save_m2m()
                 return redirect('faculty-add_question_paper')
 
-        exams = Exam_Model.objects.filter(professor=prof)
+        try:
+            exams = Exam_Model.objects.filter(professor=prof)
+        except Exam_Model.DoesNotExist:
+            exams = {}
         return render(request, 'exam/addquestionpaper.html', {
             'exams': exams, 'examform': new_Form, 'prof': prof,
         })
@@ -82,7 +93,10 @@ def add_questions(request):
                 form.save_m2m()
                 return redirect('faculty-addquestions')
 
-        exams = Exam_Model.objects.filter(professor=prof)
+        try:
+            exams = Exam_Model.objects.filter(professor=prof)
+        except Exam_Model.DoesNotExist:
+            exams = {}
         return render(request, 'exam/addquestions.html', {
             'exams': exams, 'examform': new_Form, 'prof': prof,
         })
@@ -93,10 +107,10 @@ def add_questions(request):
 def view_previousexams_prof(request):
     prof = request.user
     student = 0
-    exams = Exam_Model.objects.filter(professor=prof)
-    return render(request, 'exam/previousexam.html', {
-        'exams': exams,'prof': prof
-    })
+    try:
+        exams = Exam_Model.objects.filter(professor=prof)
+    except Exam_Model.DoesNotExist:
+        exams = {}
 
 @login_required(login_url='login')
 def student_view_previous(request):
@@ -122,23 +136,10 @@ def view_students_prof(request):
     student_completed = []
     count = 0
     dicts = {}
-    examn = Exam_Model.objects.filter(professor=request.user)
-    for student in students:
-        student_name.append(student.username)
-        count = 0
-        for exam in examn:
-            if StuExam_DB.objects.filter(student=student,examname=exam.name,completed=1).exists():
-                count += 1
-            else:
-                count += 0
-        student_completed.append(count)
-    i = 0
-    for x in student_name:
-        dicts[x] = student_completed[i]
-        i+=1
-    return render(request, 'exam/viewstudents.html', {
-        'students':dicts
-    })
+    try:
+        examn = Exam_Model.objects.filter(professor=request.user)
+    except Exam_Model.DoesNotExist:
+        examn = {}
 
 @login_required(login_url='faculty-login')
 def view_results_prof(request):
@@ -146,16 +147,10 @@ def view_results_prof(request):
     dicts = {}
     prof = request.user
     professor = User.objects.get(username=prof.username)
-    examn = Exam_Model.objects.filter(professor=professor)
-    for exam in examn:
-        if StuExam_DB.objects.filter(examname=exam.name,completed=1).exists():
-            students_filter = StuExam_DB.objects.filter(examname=exam.name,completed=1)
-            for student in students_filter:
-                key = str(student.student) + " " + str(student.examname) + " " + str(student.qpaper.qPaperTitle)
-                dicts[key] = student.score
-    return render(request, 'exam/resultsstudent.html', {
-        'students':dicts
-    })
+    try:
+        examn = Exam_Model.objects.filter(professor=professor)
+    except Exam_Model.DoesNotExist:
+        examn = {}
 
 @login_required(login_url='login')
 def view_exams_student(request):
@@ -265,3 +260,68 @@ def result(request,id):
     exam = Exam_Model.objects.get(pk=id)
     score = StuExam_DB.objects.get(student=student,examname=exam.name,qpaper=exam.question_paper).score
     return render(request,'exam/result.html',{'exam':exam,"score":score})
+
+from django.conf import settings
+from django.contrib import messages
+
+@login_required(login_url='faculty-login')
+def add_questions_automatically(request):
+    prof = request.user
+    permissions = has_group(prof, "Professor")
+    if not permissions:
+        return redirect('view_exams_student')
+
+    if request.method == 'POST':
+        context = request.POST.get('context')
+        number_of_questions = request.POST.get('number_of_questions')
+
+        if context and number_of_questions:
+            try:
+                api_url = settings.API_URL
+                print("settings.API_URL: " + settings.API_URL)
+                payload = json.dumps({
+                    "context": context,
+                    "number_of_answers_for_questions": 4,
+                    "number_of_questions": int(number_of_questions)
+                })
+                print("settings.API_KEY: " + settings.API_KEY)
+                headers = {
+                    'accept': 'application/json',
+                    'x-api-key': settings.API_KEY,
+                    'Content-Type': 'application/json'
+                }
+                response = requests.request("POST", api_url, headers=headers, data=payload)
+                response.raise_for_status()  # Raise an exception for bad status codes
+                data = response.json()
+
+                if 'data' in data and 'questions' in data['data']:
+                    for q_data in data.get('data', {}).get('questions', []):
+                        answers = q_data.get('answers', [])
+                        if len(answers) == 4:
+                            correct_answer_text = ''
+                            for ans in answers:
+                                if ans.get('correct'):
+                                    correct_answer_text = ans.get('text')
+                                    break
+                            
+                            Question_DB.objects.create(
+                                professor=prof,
+                                question=q_data.get('question_text'),
+                                optionA=answers[0].get('text'),
+                                optionB=answers[1].get('text'),
+                                optionC=answers[2].get('text'),
+                                optionD=answers[3].get('text'),
+                                answer=correct_answer_text,
+                                max_marks=1
+                            )
+                    messages.success(request, 'Questions generated successfully!')
+                    return redirect('faculty-add-questions-auto')
+                else:
+                    messages.error(request, 'Failed to generate questions. Invalid API response.')
+
+            except requests.exceptions.RequestException as e:
+                messages.error(request, f"API request failed: {e}")
+            except Exception as e:
+                messages.error(request, f"An error occurred: {e}")
+
+    return render(request, 'exam/add_questions_automatically.html')

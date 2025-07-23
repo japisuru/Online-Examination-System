@@ -6,6 +6,7 @@ urlpatterns = [
     path('prof/viewresults/',views.view_results_prof,name="faculty-result"),
     path('prof/addquestions/',views.add_questions,name="faculty-addquestions"),
     path('prof/addnewquestionpaper/',views.add_question_paper,name="faculty-add_question_paper"),
+    path('prof/addquestionsautomatically/',views.add_questions_automatically,name="faculty-add-questions-auto"),
     path('prof/viewstudents/',views.view_students_prof,name="faculty-student"),
     path('student/viewexams/',views.view_exams_student,name="view_exams_student"),
     path('student/previous/',views.student_view_previous,name="student-previous"),

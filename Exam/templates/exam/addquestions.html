@@ -1,6 +1,6 @@
 {% extends 'base_faculty.html' %}
 
-{% block body %}
+{% block content %}
     <div class="mt-5">
     </div>
 
@@ -24,6 +24,7 @@ button[type=submit]:hover{
                 </div>
                 <div class="text-center">
                 <button class= "btn" style="border-color:#745959; color:#745959;"type="submit">Submit</button>
+                <a href="{% url 'faculty-add-questions-auto' %}" class="btn btn-info" style="border-color:#745959; color:#745959;">Add Questions Automatically</a>
                 </div>
             </form>
         </div>

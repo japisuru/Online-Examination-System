@@ -7,13 +7,17 @@ MEDIA_DIR = os.path.join(BASE_DIR,'media')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
+from dotenv import load_dotenv
+load_dotenv(os.path.join(BASE_DIR, '../.env'))
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'd*8x97+1&+ea&x9=*1ay*b6v&lr14u7l*g6*+#b@oummi^&&z^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+GEMINI_API_KEY = 'YOUR_API_KEY'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -141,3 +145,5 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER')
 EMAIL_PORT = 587
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+API_URL = os.environ.get('API_URL')
+API_KEY = os.environ.get('API_KEY')
