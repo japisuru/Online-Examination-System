@@ -1,3 +1,5 @@
+from django.http import JsonResponse
+from django.urls import reverse
 import requests
 import json
 from .question_models import Question_DB
@@ -264,7 +266,8 @@ def appear_exam(request,id):
         results = StuResults_DB.objects.get_or_create(student=request.user)[0]
         results.exams.add(stu[0])
         results.save()
-        return redirect('view_exams_student')
+        result_url = reverse('result', args=[examMain.id])
+        return JsonResponse({'success': True, 'result_url': result_url})
 
 @login_required(login_url='login')
 def result(request,id):

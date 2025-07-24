@@ -112,7 +112,7 @@
             <div class="progress-bar" id="progress-bar"></div>
         </div>
 
-        <form method="POST" id="examform">
+        <form method="POST" id="examform" action="{% url 'appear-exam' exam.id %}">
             {% csrf_token %}
             <div id="questions-wrapper">
                 {% for ques in question_list %}
@@ -136,8 +136,8 @@
                 {% endfor %}
             </div>
 
-            <input type="hidden" value="{{ qpaper.qPaperTitle}}" name="papertitle">
-            <input type="hidden" value="{{ exam }}" name="paper">
+            <input type="hidden" value="{{ exam.question_paper.qPaperTitle }}" name="papertitle">
+            <input type="hidden" value="{{ exam.name }}" name="paper">
             <input type="hidden" id="secs" value="{{ secs }}">
             <input type="hidden" id="mins" value="{{ mins }}">
             <input type="hidden" id="professorname" value="{{ exam.professor }}">
@@ -145,7 +145,7 @@
             <div class="nav-buttons">
                 <button type="button" class="btn-fun btn-prev" id="prev-btn">Previous</button>
                 <button type="button" class="btn-fun btn-next" id="next-btn">Next</button>
-                <input type="submit" value="Submit Exam" id="submit-btn" class="btn-fun btn-submit" onclick="submitFormOkay = true;">
+                <input type="submit" value="Submit Exam" id="submit-btn" class="btn-fun btn-submit">
             </div>
         </form>
     </div>
@@ -158,6 +158,7 @@
         const nextBtn = document.getElementById('next-btn');
         const submitBtn = document.getElementById('submit-btn');
         const progressBar = document.getElementById('progress-bar');
+        const examForm = document.getElementById('examform');
 
         function showQuestion(index) {
             questions.forEach((q, i) => {
@@ -193,13 +194,49 @@
             }
         });
 
+        examForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            submitBtn.value = "Submitting...";
+            submitBtn.disabled = true;
+
+            const formData = new FormData(examForm);
+
+            fetch(examForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (window.opener) {
+                        window.opener.location.href = data.result_url;
+                    }
+                    window.onbeforeunload = null;
+                    window.close();
+                } else {
+                    alert('There was an error submitting your exam.');
+                    submitBtn.value = "Submit Exam";
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('A network error occurred. Please try again.');
+                submitBtn.value = "Submit Exam";
+                submitBtn.disabled = false;
+            });
+        });
+
         // Timer logic
         var seconds = document.getElementById("secs").value;
         var minutes = document.getElementById("mins").value;
         function display() {
             if (minutes == 0 && seconds <= 0) {
                 window.onbeforeunload = undefined;
-                document.getElementById("examform").submit();
+                examForm.requestSubmit();
                 return;
             }
             if (seconds <= 0) {
@@ -220,7 +257,6 @@
                 cheatCounter++;
                 if (cheatCounter > 3) {
                     console.log("Warning: Please stay on the exam page.");
-                    // Optionally, notify the professor
                 }
             }
         });
