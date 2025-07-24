@@ -16,10 +16,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib import messages
-
-def has_group(user, group_name):
-    group = Group.objects.get(name=group_name)
-    return True if group in user.groups.all() else False
+from course.views import has_group
 
 @login_required(login_url='faculty-login')
 def view_exams_prof(request):
@@ -178,7 +175,10 @@ def view_results_prof(request):
 
 @login_required(login_url='login')
 def view_exams_student(request):
-    exams = Exam_Model.objects.all()
+    student = request.user
+    enrolled_courses = student.enrolled_courses.all()
+    exams = Exam_Model.objects.filter(course__in=enrolled_courses)
+    
     list_of_completed = []
     list_un = []
     for exam in exams:

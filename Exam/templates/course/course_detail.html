@@ -1,0 +1,95 @@
+{% extends 'base_faculty.html' %}
+{% block content %}
+<style>
+    .page-container {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-top: 40px;
+    }
+    .page-title {
+        font-size: 2.8em;
+        color: #4682B4;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .student-list-container {
+        margin-top: 30px;
+    }
+    .list-title {
+        font-size: 1.8em;
+        color: #ff6347;
+        margin-bottom: 15px;
+    }
+    .student-list {
+        list-style: none;
+        padding: 0;
+    }
+    .student-item {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+        font-size: 1.2em;
+    }
+    .form-container {
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 2px dashed #ccc;
+    }
+    .form-title {
+        font-size: 2em;
+        color: #4682B4;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .custom-select {
+        font-size: 1.1em;
+        padding: 8px 12px;
+        border-radius: 10px;
+    }
+    .btn-add {
+        font-size: 1.1em;
+        padding: 8px 20px;
+        border-radius: 10px;
+        border: none;
+        color: white;
+        background-color: #28a745;
+    }
+</style>
+
+<div class="page-container">
+    <h1 class="page-title">Manage: {{ course.name }}</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="student-list-container">
+                <h2 class="list-title">Enrolled Students</h2>
+                <ul class="student-list">
+                    {% for student in enrolled_students %}
+                        <li class="student-item">{{ student.username }}</li>
+                    {% empty %}
+                        <li class="student-item">No students enrolled yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-container">
+                <h2 class="form-title">Enroll a Student</h2>
+                <form method="post" class="form-inline justify-content-center">
+                    {% csrf_token %}
+                    <select name="student_id" class="custom-select mr-sm-2">
+                        <option selected disabled>Choose a student...</option>
+                        {% for student in unenrolled_students %}
+                            <option value="{{ student.id }}">{{ student.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-add">Add Student</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

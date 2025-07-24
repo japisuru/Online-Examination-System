@@ -1,30 +1,46 @@
-
 from django.shortcuts import render, redirect
-from django.views.generic import ListView
-from .models import Course, CourseRegistration, Student, Grade
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User, Group
+from .models import Course
 
-def course_registration(request):
+def has_group(user, group_name):
+    group = Group.objects.get(name=group_name)
+    return True if group in user.groups.all() else False
+
+@login_required(login_url='faculty-login')
+def manage_courses(request):
+    if not has_group(request.user, "Professor"):
+        return redirect('view_exams_student')
+
     if request.method == 'POST':
-        return _extracted_from_course_registration_(request)
-    courses = Course.objects.all()
-    students = Student.objects.filter(has_paid_acceptance_fee=True, has_paid_school_fees=True)
-    sessions = Session.objects.all()
-    return render(request, 'course_registration.html', {'courses': courses, 'students': students, 'sessions': sessions})
+        course_name = request.POST.get('course_name')
+        if course_name:
+            Course.objects.create(name=course_name, professor=request.user)
+        return redirect('manage_courses')
 
+    courses = Course.objects.filter(professor=request.user)
+    return render(request, 'course/manage_courses.html', {'courses': courses})
 
-# TODO Rename this here and in `course_registration`
-def _extracted_from_course_registration_(request):
-    student_id = request.POST.get('student_id')
-    course_id = request.POST.get('course_id')
-    session_id = request.POST.get('session_id')
-    student = Student.objects.get(id=student_id)
-    course = Course.objects.get(id=course_id)
-    session = Session.objects.get(id=session_id)
+@login_required(login_url='faculty-login')
+def course_detail(request, course_id):
+    if not has_group(request.user, "Professor"):
+        return redirect('view_exams_student')
 
-    if not student.has_paid_acceptance_fee or not student.has_paid_school_fees:
-        return render(request, 'error.html', {'message': 'Student not eligible for course registration.'})
-    if student.credit_units_limit < course.credit_units:
-        return render(request, 'error.html', {'message': 'Credit units limit exceeded.'})
-    CourseRegistration.objects.create(student=student, course=course, session=session)
-    return redirect('course_list')
+    course = Course.objects.get(id=course_id, professor=request.user)
+    
+    if request.method == 'POST':
+        student_id = request.POST.get('student_id')
+        if student_id:
+            student = User.objects.get(id=student_id)
+            course.students.add(student)
+        return redirect('course_detail', course_id=course.id)
 
+    all_students = User.objects.filter(groups__name="Student")
+    enrolled_students = course.students.all()
+    unenrolled_students = all_students.exclude(id__in=enrolled_students.values_list('id', flat=True))
+
+    return render(request, 'course/course_detail.html', {
+        'course': course,
+        'enrolled_students': enrolled_students,
+        'unenrolled_students': unenrolled_students
+    })

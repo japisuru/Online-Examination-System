@@ -3,10 +3,12 @@ from django.forms import ModelForm
 from django.contrib.auth.models import User
 from datetime import datetime
 from .questionpaper_models import Question_Paper
+from course.models import Course
 from django import forms
 
 class Exam_Model(models.Model):
     professor = models.ForeignKey(User, limit_choices_to={'groups__name': "Professor"}, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='exams')
     name = models.CharField(max_length=50)
     total_marks = models.IntegerField()
     question_paper = models.ForeignKey(Question_Paper, on_delete=models.CASCADE, related_name='exams')
@@ -19,8 +21,9 @@ class Exam_Model(models.Model):
 
 class ExamForm(ModelForm):
     def __init__(self,professor,*args,**kwargs):
-        super (ExamForm,self ).__init__(*args,**kwargs) 
+        super (ExamForm,self ).__init__(*args,**kwargs)
         self.fields['question_paper'].queryset = Question_Paper.objects.filter(professor=professor)
+        self.fields['course'].queryset = Course.objects.filter(professor=professor)
 
     class Meta:
         model = Exam_Model

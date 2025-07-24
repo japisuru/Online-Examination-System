@@ -1,0 +1,95 @@
+{% extends 'base_faculty.html' %}
+{% block content %}
+<style>
+    .page-container {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-top: 40px;
+    }
+    .page-title {
+        font-size: 2.8em;
+        color: #4682B4;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .course-list {
+        list-style: none;
+        padding: 0;
+    }
+    .course-item {
+        background-color: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .course-name {
+        font-size: 1.5em;
+        font-weight: 700;
+        color: #333;
+    }
+    .btn-manage {
+        font-size: 1.1em;
+        padding: 8px 20px;
+        border-radius: 10px;
+        border: none;
+        color: white;
+        background-color: #ffc107;
+        text-decoration: none;
+    }
+    .form-container {
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 2px dashed #ccc;
+    }
+    .form-title {
+        font-size: 2em;
+        color: #4682B4;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .form-control {
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 1em;
+    }
+    .btn-create {
+        font-size: 1.2em;
+        padding: 10px 25px;
+        border-radius: 10px;
+        border: none;
+        color: white;
+        background-color: #28a745;
+    }
+</style>
+
+<div class="page-container">
+    <h1 class="page-title">📚 My Courses</h1>
+    <ul class="course-list">
+        {% for course in courses %}
+            <li class="course-item">
+                <span class="course-name">{{ course.name }}</span>
+                <a href="{% url 'course_detail' course.id %}" class="btn-manage">Manage</a>
+            </li>
+        {% empty %}
+            <li class="course-item">You haven't created any courses yet.</li>
+        {% endfor %}
+    </ul>
+
+    <div class="form-container">
+        <h2 class="form-title">Create a New Course</h2>
+        <form method="post" class="form-inline justify-content-center">
+            {% csrf_token %}
+            <div class="form-group mx-sm-3 mb-2">
+                <input type="text" name="course_name" class="form-control" placeholder="Enter course name" required>
+            </div>
+            <button type="submit" class="btn btn-create mb-2">Create Course</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
