@@ -1,7 +1,77 @@
+{% extends 'base_faculty.html' %}
+{% block content %}
+<style>
+    .page-container {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .page-title {
+        font-size: 2.8em;
+        color: #4682B4;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .candidate-list {
+        list-style: none;
+        padding: 0;
+    }
+    .candidate-item {
+        background-color: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s;
+    }
+    .candidate-item:hover {
+        transform: scale(1.02);
+        border-color: #4682B4;
+    }
+    .candidate-info {
+        font-size: 1.2em;
+    }
+    .candidate-name {
+        font-weight: 700;
+        color: #333;
+    }
+    .admission-status {
+        font-size: 1.1em;
+        padding: 8px 15px;
+        border-radius: 10px;
+        color: #fff;
+    }
+    .status-admitted {
+        background-color: #28a745;
+    }
+    .status-not-admitted {
+        background-color: #dc3545;
+    }
+</style>
 
-<h1>Admission Granted</h1>
-<ul>
-    {% for candidate in candidates %}
-        <li>{{ candidate.name }} - {{ candidate.score }} - Program: {{ candidate.program }} - {% if candidate.admission_status %}Admitted{% else %}Not Admitted{% endif %}</li>
-    {% endfor %}
-</ul>
+<div class="page-container">
+    <h1 class="page-title">🎉 Admission Results 🎉</h1>
+    <ul class="candidate-list">
+        {% for candidate in candidates %}
+            <li class="candidate-item">
+                <div class="candidate-info">
+                    <span class="candidate-name">{{ candidate.name }}</span> | Score: {{ candidate.score }} | Program: {{ candidate.program }}
+                </div>
+                <div>
+                    {% if candidate.admission_status %}
+                        <span class="admission-status status-admitted">Admitted</span>
+                    {% else %}
+                        <span class="admission-status status-not-admitted">Not Admitted</span>
+                    {% endif %}
+                </div>
+            </li>
+        {% empty %}
+            <li class="candidate-item">No admission results to display.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

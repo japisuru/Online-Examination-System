@@ -1,57 +1,104 @@
 {% extends 'base.html' %}
-
 {% block body %}
-<style media="screen">
-  *{
-    color:#745959;
-  }
+<style>
+    .page-container {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-top: 40px;
+    }
+    .section-title {
+        font-size: 2.5em;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .title-attended {
+        color: #28a745;
+    }
+    .title-missed {
+        color: #dc3545;
+    }
+    .table-fun {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .table-fun th, .table-fun td {
+        padding: 15px;
+        text-align: left;
+        font-size: 1.2em;
+    }
+    .table-fun thead {
+        border-radius: 15px;
+    }
+    .table-fun th {
+        color: #fff;
+        font-weight: 700;
+    }
+    .thead-attended {
+        background-color: #28a745;
+    }
+    .thead-missed {
+        background-color: #dc3545;
+    }
+    .table-fun tbody tr {
+        border-bottom: 1px solid #eee;
+    }
+    .table-fun tbody tr:last-child {
+        border-bottom: none;
+    }
+    .table-fun tbody tr:hover {
+        background-color: #f8f9fa;
+    }
 </style>
-    <div class="mt-5">
-    </div>
-    <div class="container">
-        {% if exams %}
-                <table class="table">
-                    <thead class="thead" style="background-color: #a3d5ff;">
-                        <tr>
-                        <th scope="col">Exam Name</th>
-                        <th scope="col">Exam Professor</th>
-                        <th scope="col">Attendance</th>
-                        </tr>
-                    </thead>
-                {% for exam in exams %}
-                        <tbody>
-                            <tr>
-                            <td>{{exam.name}}</td>
-                            <td>{{exam.professor}}</td>
-                            <td>Not Attended</tr>
-                        </tbody>
-                {% endfor %}
-                </table>
-        {% endif %}
-    </div>
-    <div class="container">
-        {% if completed %}
-                <table class="table">
-                    <thead class="thead" style="background-color: #87ff9b">
-                        <tr>
-                        <th scope="col">Exam Name</th>
-                        <th scope="col">Exam Professor</th>
-                        <th scope="col">Attendance</th>
-                        </tr>
-                    </thead>
-            {% for exam in completed %}
-                    <tbody>
-                        <tr>
-                        <td>{{exam.name}}</td>
-                        <td>{{exam.professor}}</td>
-                        <td>
-                            Attended
-                        </tr>
-                    </tbody>
-                <input type="hidden" value="{{ exam }}" name="paper">
-            {% endfor %}
-            </table>
-        {% endif %}
-    </div>
 
+<div class="container">
+    {% if completed %}
+    <div class="page-container">
+        <h1 class="section-title title-attended">✅ Exams You've Attended</h1>
+        <table class="table-fun">
+            <thead class="thead-attended">
+                <tr>
+                    <th>Exam Name</th>
+                    <th>Professor</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in completed %}
+                <tr>
+                    <td>{{ exam.name }}</td>
+                    <td>{{ exam.professor }}</td>
+                    <td>Attended</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if exams %}
+    <div class="page-container" style="margin-top: 40px;">
+        <h1 class="section-title title-missed">❌ Exams You've Missed</h1>
+        <table class="table-fun">
+            <thead class="thead-missed">
+                <tr>
+                    <th>Exam Name</th>
+                    <th>Professor</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+                <tr>
+                    <td>{{ exam.name }}</td>
+                    <td>{{ exam.professor }}</td>
+                    <td>Not Attended</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

@@ -4,47 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exam Portal</title>
-     {% block css_block %}
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/main.css' %}" rel="stylesheet">
-    <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
-     {% endblock %}
+    {% block css_block %}{% endblock %}
+    <style>
+        body {
+            background-color: #f0f8ff;
+            font-family: 'Comic Neue', cursive;
+            color: #333;
+        }
+        .navbar-fun {
+            background-color: #89cff0; /* Baby Blue */
+            border-bottom: 5px solid #ffc107; /* Sunny Yellow */
+            padding: 10px 20px;
+        }
+        .navbar-fun .navbar-brand, .navbar-fun .nav-link {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.5em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .navbar-fun .nav-link:hover {
+            color: #ffc107;
+        }
+        .main-container {
+            display: flex;
+        }
+        .content-wrapper {
+            flex-grow: 1;
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
-<style media="screen">
-  *{
-    color: #271c4d;
-  }
-  input[type=submit]:hover{
-          background: #a3d5ff;
-  }
-</style>
-    <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
-      <a href="{% url 'index' %}" style="color:#1f154b" >Home</a>
-      <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <ul class="navbar-nav px-3" style="display:flex;flex-direction:row;align-items:center">
-        <li class="nav-item text-nowrap">
-          <a class="nav-link" href="{% url 'email-student-pref' %}">Hi, {{request.user.username}}</a>
-        </li>
-      </ul>
+    <nav class="navbar navbar-expand-lg navbar-fun">
+        <a class="navbar-brand" href="{% url 'index' %}">🎈 Fun Exams!</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'email-student-pref' %}">Hi, {{request.user.username}} 👋</a>
+                </li>
+            </ul>
+        </div>
     </nav>
 
-    {% include 'partials/_sidebar.html' %}
-
-
-      {% block body %}
-
-
-      {% endblock %}
-
-    </main>
+    <div class="main-container">
+        {% include 'partials/_sidebar.html' %}
+        <main role="main" class="content-wrapper">
+            {% block body %}
+            {% endblock %}
+        </main>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script>window.jQuery || document.write('<script src="/docs/4.5/assets/js/vendor/jquery.slim.min.js"><\/script>')</script>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js"></script>
-
 </body>
 </html>

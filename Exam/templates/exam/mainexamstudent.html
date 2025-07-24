@@ -1,48 +1,91 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block css_block %}
-<link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
-{% endblock %}
-
 {% block body %}
-    <style>
-        img{
-        height:15em;
-        width:5em;
-      }
-    </style>
-    <div class="mt-5">
-    </div>
-    <div class="container">
-            <div class="row">
-                {% if exams %}
-                    {% for exam in exams %}
-                        <div class="card col-md-3 mt-3 ml-3 text-center" style="width: 18rem;">
-                            <img class="card-img-top" src="{% static 'img/book.png' %}">
-                            <div class="card-body">
-                                <h5 class="card-title">{{exam.name}}</h5>
-                                <p class="card-text text-center">Professor {{exam.professor}}</p>
-                            </div>
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item text-center">Question Paper - {{exam.question_paper.qPaperTitle}}</li>
-                            </ul>
-                            <div class="card-body text-center">
-                                <a onclick = window.open("{% url 'appear-exam' exam.id  %}","","width=800,height=800") target="_blank" class="btn btn-outline-danger">Appear</a>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-            <div class="jumbotron col-md-12 text-center bg-success">
-                NO PENDING EXAMS
-            </div>
-        {% endif %}
-            </div>
-    </div>
-    
+<style>
+    .page-title {
+        font-size: 2.8em;
+        color: #ff6347;
+        text-align: center;
+        margin: 40px 0;
+    }
+    .exam-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+        padding: 0 20px;
+    }
+    .exam-card {
+        background-color: #fff;
+        border-radius: 20px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .exam-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+    .exam-icon {
+        font-size: 4em;
+        margin-bottom: 15px;
+    }
+    .exam-name {
+        font-size: 1.8em;
+        color: #007bff;
+        margin-bottom: 10px;
+    }
+    .exam-prof, .exam-paper {
+        font-size: 1.1em;
+        color: #555;
+        margin-bottom: 5px;
+    }
+    .btn-appear {
+        font-size: 1.2em;
+        padding: 10px 25px;
+        border-radius: 12px;
+        border: none;
+        color: white;
+        background-color: #dc3545;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 15px;
+        transition: background-color 0.3s;
+    }
+    .btn-appear:hover {
+        background-color: #c82333;
+        text-decoration: none;
+        color: white;
+    }
+    .no-exams-card {
+        background-color: #d4edda;
+        color: #155724;
+        border-radius: 20px;
+        padding: 50px;
+        text-align: center;
+        font-size: 1.5em;
+    }
+</style>
 
-
+<div class="container">
+    <h1 class="page-title">🚀 Your Upcoming Exams</h1>
+    <div class="exam-grid">
+        {% for exam in exams %}
+            <div class="exam-card">
+                <div class="exam-icon">📝</div>
+                <h2 class="exam-name">{{ exam.name }}</h2>
+                <p class="exam-prof"><strong>Professor:</strong> {{ exam.professor }}</p>
+                <p class="exam-paper"><strong>Paper:</strong> {{ exam.question_paper.qPaperTitle }}</p>
+                <a onclick="window.open('{% url 'appear-exam' exam.id %}', '', 'width=900,height=800')" class="btn-appear">Appear Now!</a>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="no-exams-card">
+                    🎉 Hooray! No pending exams for you. Enjoy your free time! 🎉
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
-
-
-          

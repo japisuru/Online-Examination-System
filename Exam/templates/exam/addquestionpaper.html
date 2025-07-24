@@ -1,48 +1,61 @@
 {% extends 'base_faculty.html' %}
-
 {% block content %}
-    <div class="mt-5">
-    </div>
-
 <style>
-*{
-  color: #745959;
-}
-button[type=submit]:hover{
-        background: #87FF9B;
+    .form-container {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        max-width: 800px;
+        margin: 40px auto;
     }
-#id_questions{
-  display:block;
-  width:100%;
-  height:calc(10em);
-  padding:.375rem .75rem;
-  font-size:1rem;
-  font-weight:400;
-  line-height:1.5;
-  color: #745959;
-  background-color:#fff;
-  background-clip:padding-box;
-  border:1px solid #745959;
-  border-radius:.25rem;
-  transition:border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    .form-title {
+        font-size: 2.5em;
+        color: #4682B4;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .form-group p {
+        font-size: 1.2em;
+        font-weight: 700;
+        color: #555;
+        margin-bottom: 10px;
+    }
+    .form-control, #id_questions {
+        border-radius: 10px !important;
+        padding: 12px !important;
+        font-size: 1em !important;
+        width: 100% !important;
+        border: 2px solid #ddd !important;
+    }
+    #id_questions {
+        height: 200px !important;
+    }
+    .btn-fun-submit {
+        font-size: 1.3em;
+        padding: 12px 30px;
+        border-radius: 15px;
+        border: none;
+        color: white;
+        background-color: #28a745;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: block;
+        margin: 20px auto 0;
+    }
+    .btn-fun-submit:hover {
+        background-color: #218838;
     }
 </style>
-<div class="row">
-	<div class="col-md-2"></div>
-    <div class="col-md-6">
-        <div class="ml-5 card">
-            <form method="POST" action="{% url 'faculty-add_question_paper' %}">
-                <div class="container">
-                    {% csrf_token %}
-                    {{examform.as_p}}
-                </div>
-                <div class="text-center">
-                <button class= "btn" style="border-color:#745959; color:#745959;" type="submit">Submit</button>
-                </div>
-            </form>
+
+<div class="form-container">
+    <h1 class="form-title">📜 Create a New Question Paper</h1>
+    <form method="POST" action="{% url 'faculty-add_question_paper' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ examform.as_p }}
         </div>
-        </div>
+        <button class="btn-fun-submit" type="submit">Create Paper</button>
+    </form>
 </div>
-
-
 {% endblock %}

@@ -1,43 +1,95 @@
 {% extends 'base.html' %}
-
-
 {% block body %}
-<style media="screen">
-	*{
-		color: #745959;
-	}
-	button[type=submit]:hover{
-	        background: rgba(116, 89, 89,0.7);
-	    }
+<style>
+    .page-container {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin: 40px auto;
+        max-width: 800px;
+    }
+    .page-title {
+        font-size: 2.8em;
+        color: #ff6347;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .setting-section {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .setting-label {
+        font-size: 1.4em;
+        font-weight: 700;
+        color: #333;
+    }
+    .form-inline {
+        display: flex;
+        align-items: center;
+    }
+    .custom-select {
+        font-size: 1.1em;
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 2px solid #ddd;
+        margin-right: 10px;
+    }
+    .btn-fun-save {
+        font-size: 1.1em;
+        padding: 8px 20px;
+        border-radius: 10px;
+        border: none;
+        color: white;
+        background-color: #28a745;
+        cursor: pointer;
+    }
+    .btn-fun-change {
+        font-size: 1.1em;
+        padding: 10px 25px;
+        border-radius: 10px;
+        border: none;
+        color: white;
+        background-color: #ffc107;
+        text-decoration: none;
+    }
+    .btn-fun-change:hover {
+        text-decoration: none;
+        color: white;
+    }
 </style>
-	<div class="container mt-3">
-		{% include 'partials/_messages.html' %}
-		<h5>Login Email Notifications</h5>
-		<form method="post" action="{% url 'email-student-pref' %}">
-			{% csrf_token %}
-			<div class="input-group">
-			  <select name = "email_pref" class="custom-select" id="inputGroupSelect04" aria-label="Example select with button addon">
 
-			  	{% if student_preference %}
-			    	<option selected name = "email_pref" value = "{{ student_preference.sendEmailOnLogin }}">{{ email_pref_value }}</option>
-					<option name = "email_pref" value="False" >Off</option>
-                    <option name = "email_pref" value="True" >On</option>
-			    {% else %}
-					<option selected name = "email_pref" value = "True">On</option>
-					<option name = "email_pref" value="False" >Off</option>
-				{% endif %}
-			  </select>
-			  <div class="input-group-append">
-			    <button class="btn btn-outline-light" type="submit" value="Save" style="border-color:#745959; color:#745959;">Save</button>
-			  </div>
-			</div>
-		</form>
+<div class="page-container">
+    <h1 class="page-title">⚙️ General Settings</h1>
+    
+    {% include 'partials/_messages.html' %}
 
-		<hr/>
-		<h5>Change Password : <a href="{% url 'change_password'%}" class ="btn btn-sm btn-warning">Click here to change password</a></h5>
+    <div class="setting-section">
+        <div class="setting-label">📧 Login Email Notifications</div>
+        <form method="post" action="{% url 'email-student-pref' %}" class="form-inline">
+            {% csrf_token %}
+            <select name="email_pref" class="custom-select">
+                {% if student_preference %}
+                    <option selected value="{{ student_preference.sendEmailOnLogin }}">{{ email_pref_value }}</option>
+                    <option value="False">Off</option>
+                    <option value="True">On</option>
+                {% else %}
+                    <option selected value="True">On</option>
+                    <option value="False">Off</option>
+                {% endif %}
+            </select>
+            <button class="btn-fun-save" type="submit">Save</button>
+        </form>
+    </div>
 
-	</div>
-
-
-
+    <div class="setting-section">
+        <div class="setting-label">🔒 Change Password</div>
+        <a href="{% url 'change_password' %}" class="btn-fun-change">Change Password</a>
+    </div>
+</div>
 {% endblock %}

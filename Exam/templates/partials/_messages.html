@@ -1,8 +1,66 @@
-
 {% if messages %}
-<div class="messages">
+<style>
+    .message-container {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 9999;
+        width: 320px;
+    }
+    .alert-fun {
+        font-family: 'Comic Neue', cursive;
+        border-radius: 15px;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        font-size: 1.1em;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border: none;
+        color: #fff;
+        display: flex;
+        align-items: center;
+    }
+    .alert-fun .icon {
+        font-size: 1.5em;
+        margin-right: 15px;
+    }
+    .alert-fun.alert-success {
+        background-color: #28a745;
+    }
+    .alert-fun.alert-error, .alert-fun.alert-danger {
+        background-color: #dc3545;
+    }
+    .alert-fun.alert-warning {
+        background-color: #ffc107;
+        color: #333;
+    }
+    .alert-fun.alert-info {
+        background-color: #17a2b8;
+    }
+</style>
+
+<div class="message-container">
     {% for message in messages %}
-    <div {% if message.tags %} class="alert alert-sm alert-{{ message.tags }}"{% endif %}>{{ message }}</div>
+    <div class="alert-fun alert-{{ message.tags }}">
+        <span class="icon">
+            {% if 'success' in message.tags %}✅
+            {% elif 'error' in message.tags or 'danger' in message.tags %}❌
+            {% elif 'warning' in message.tags %}⚠️
+            {% else %}ℹ️
+            {% endif %}
+        </span>
+        {{ message }}
+    </div>
     {% endfor %}
 </div>
+<script>
+    // Auto-hide messages after 5 seconds
+    setTimeout(function() {
+        let messages = document.querySelectorAll('.alert-fun');
+        messages.forEach(function(message) {
+            message.style.transition = 'opacity 0.5s';
+            message.style.opacity = '0';
+            setTimeout(() => message.remove(), 500);
+        });
+    }, 5000);
+</script>
 {% endif %}

@@ -1,29 +1,104 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Student Results</title>
-</head>
-<body>
-    <h1>Student Results</h1>
-    <h2>{{ student.name }}</h2>
-    <p>GPA: {{ gpa }}</p>
-    <p>CGPA: {{ cgpa }}</p>
-    <p>Class: {{ student_class }}</p>
+{% extends 'base.html' %}
+{% block body %}
+<style>
+    .page-container {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin: 40px auto;
+        max-width: 900px;
+    }
+    .page-title {
+        font-size: 2.8em;
+        color: #ff6347;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .summary-bar {
+        display: flex;
+        justify-content: space-around;
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .summary-item {
+        flex: 1;
+    }
+    .summary-label {
+        font-size: 1.2em;
+        color: #555;
+    }
+    .summary-value {
+        font-size: 2em;
+        font-weight: 700;
+        color: #007bff;
+    }
+    .table-fun {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .table-fun th, .table-fun td {
+        padding: 15px;
+        text-align: left;
+        font-size: 1.2em;
+    }
+    .table-fun thead {
+        border-radius: 15px;
+    }
+    .table-fun th {
+        background-color: #ff6347;
+        color: #fff;
+        font-weight: 700;
+    }
+    .table-fun tbody tr {
+        border-bottom: 1px solid #eee;
+    }
+    .table-fun tbody tr:last-child {
+        border-bottom: none;
+    }
+    .table-fun tbody tr:hover {
+        background-color: #fff0eb;
+    }
+</style>
 
-    <table>
-        <tr>
-            <th>Course</th>
-            <th>Semester</th>
-            <th>Total Score</th>
-        </tr>
-        {% for result in results %}
-        <tr>
-            <td>{{ result.course.name }}</td>
-            <td>{{ result.semester }}</td>
-            <td>{{ result.total_score }}</td>
-        </tr>
-        {% endfor %}
+<div class="page-container">
+    <h1 class="page-title">My Results for {{ student.name }}</h1>
+
+    <div class="summary-bar">
+        <div class="summary-item">
+            <div class="summary-label">GPA</div>
+            <div class="summary-value">{{ gpa }}</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">CGPA</div>
+            <div class="summary-value">{{ cgpa }}</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Class</div>
+            <div class="summary-value">{{ student_class }}</div>
+        </div>
+    </div>
+
+    <table class="table-fun">
+        <thead>
+            <tr>
+                <th>Course</th>
+                <th>Semester</th>
+                <th>Total Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.course.name }}</td>
+                <td>{{ result.semester }}</td>
+                <td>{{ result.total_score }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
-</body>
-</html>
+</div>
+{% endblock %}

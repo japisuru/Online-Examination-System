@@ -1,36 +1,78 @@
 {% extends 'base_faculty.html' %}
+{% block content %}
+<style>
+    .page-container {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-top: 40px;
+    }
+    .page-title {
+        font-size: 2.8em;
+        color: #4682B4;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .table-fun {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .table-fun th, .table-fun td {
+        padding: 15px;
+        text-align: left;
+        font-size: 1.2em;
+    }
+    .table-fun thead {
+        border-radius: 15px;
+    }
+    .table-fun th {
+        background-color: #4682B4;
+        color: #fff;
+        font-weight: 700;
+    }
+    .table-fun tbody tr {
+        border-bottom: 1px solid #eee;
+    }
+    .table-fun tbody tr:last-child {
+        border-bottom: none;
+    }
+    .table-fun tbody tr:hover {
+        background-color: #f1f8ff;
+    }
+    .no-data-card {
+        background-color: #e2f3ff;
+        color: #0c5460;
+        border-radius: 20px;
+        padding: 50px;
+        text-align: center;
+        font-size: 1.5em;
+    }
+</style>
 
-{% block body %}
-    <div class="mt-5">
-    </div>
-
-<div class="row">
-	<div class="col-md-1"></div>
-    <div class="col-md-8">
-    <div class="ml-5 container">
-        {% if students %}
-                <table class="table">
-                    <thead class="thead" style="color: #745959; background-color: #87ff9b">
-                        <tr>
-                        <th scope="col">Student Name</th>
-                        <th scope="col">Scores of Exams Attended</th>
-                        </tr>
-                    </thead>
+<div class="page-container">
+    <h1 class="page-title">📊 Student Results</h1>
+    {% if students %}
+        <table class="table-fun">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Scores of Exams Attended</th>
+                </tr>
+            </thead>
+            <tbody>
                 {% for key, values in students.items %}
-                        <tbody>
-                            <tr>
-                                <td>{{key}}</td>
-                                <td>{{values}}</td>
-                            </tr>
-                        </tbody>
+                <tr>
+                    <td>{{ key }}</td>
+                    <td>{{ values|join:", " }}</td>
+                </tr>
                 {% endfor %}
-                </table>
-        {% else %}
-            <div class="jumbotron text-center bg-success">
-                NO STUDENT EXIST IN DATABASE
-            </div>
-        {% endif %}
-    </div>
-
-
+            </tbody>
+        </table>
+    {% else %}
+        <div class="no-data-card">
+            There are no students in the database yet.
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

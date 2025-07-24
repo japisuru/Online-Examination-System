@@ -238,7 +238,7 @@ def appear_exam(request,id):
         for j in range(list_i.count()):
             ques = queslist[j]
             max_m = list_i[i].max_marks
-            ans = request.POST.get(ques.question, False)
+            ans = request.POST.get(f'q{j}', False)
             if not ans:
                 ans = "E"
             ques.choice = ans

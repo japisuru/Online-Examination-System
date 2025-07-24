@@ -1,3 +1,54 @@
+{% extends 'base_faculty.html' %}
+{% block content %}
+<style>
+    .message-container {
+        background-color: #fff;
+        border-radius: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 50px;
+        max-width: 600px;
+        width: 100%;
+        text-align: center;
+        margin: 40px auto;
+    }
+    .icon {
+        font-size: 5em;
+        color: #28a745;
+        margin-bottom: 20px;
+    }
+    .message-title {
+        color: #4682B4;
+        font-size: 2.5em;
+        margin-bottom: 20px;
+    }
+    .message-text {
+        font-size: 1.2em;
+        color: #555;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+    .btn-fun {
+        font-size: 1.3em;
+        padding: 15px 30px;
+        border-radius: 15px;
+        border: none;
+        color: white;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        background-color: #ffc107;
+    }
+    .btn-fun:hover {
+        background-color: #e0a800;
+    }
+</style>
 
-<p>Excel file uploaded successfully!</p>
-<a href="{% url 'grant_admission' %}">Grant Admission</a>
+<div class="message-container">
+    <div class="icon">✅</div>
+    <h1 class="message-title">Upload Successful!</h1>
+    <p class="message-text">
+        The Excel file has been uploaded successfully. You can now proceed to grant admissions based on the scores.
+    </p>
+    <a href="{% url 'grant_admission' %}" class="btn-fun">Grant Admission</a>
+</div>
+{% endblock %}

@@ -1,37 +1,100 @@
 {% extends 'base.html' %}
-
 {% block body %}
-    <div class="mt-5">
-    </div>
-    <div class="container">
-        {% if completed %}
-                <table class="table">
-                    <thead class="thead" style="color: #745959; background-color: #87ff9b">
-                        <tr>
-                        <th scope="col">Exam Name</th>
-                        <th scope="col">Exam title</th>
-                        <th scope="col">Exam Professor</th>
-                        <th scope="col">Action</th>
-                        </tr>
-                    </thead>
-            {% for exam in completed %}
-                    <tbody>
-                        <tr>
-                        <td>{{exam.name}}</td>
-                        <td>{{exam.question_paper.qPaperTitle}}</td>
-                        <td>{{exam.professor}}</td>
-                        <td>
-                            <a href="{% url 'result' exam.id  %}" class="btn btn-sm btn-info">Result</a>
-                        </tr>
-                    </tbody>
-                <input type="hidden" value="{{ exam }}" name="paper">
-            {% endfor %}
-            </table>
-        {% else %}
-            <div class="jumbotron col-md-12 text-center bg-success">
-                NO EXAMS
-            </div>
-        {% endif %}
-    </div>
+<style>
+    .page-container {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-top: 40px;
+    }
+    .page-title {
+        font-size: 2.8em;
+        color: #ff6347;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .table-fun {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .table-fun th, .table-fun td {
+        padding: 15px;
+        text-align: left;
+        font-size: 1.2em;
+    }
+    .table-fun thead {
+        border-radius: 15px;
+    }
+    .table-fun th {
+        background-color: #ff6347;
+        color: #fff;
+        font-weight: 700;
+    }
+    .table-fun tbody tr {
+        border-bottom: 1px solid #eee;
+    }
+    .table-fun tbody tr:last-child {
+        border-bottom: none;
+    }
+    .table-fun tbody tr:hover {
+        background-color: #fff0eb;
+    }
+    .btn-result {
+        font-size: 1em;
+        padding: 8px 20px;
+        border-radius: 10px;
+        border: none;
+        color: white;
+        background-color: #17a2b8;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+    .btn-result:hover {
+        background-color: #138496;
+        text-decoration: none;
+        color: white;
+    }
+    .no-exams-card {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border-radius: 20px;
+        padding: 50px;
+        text-align: center;
+        font-size: 1.5em;
+    }
+</style>
 
+<div class="page-container">
+    <h1 class="page-title">🏆 Your Past Exams & Results</h1>
+    {% if completed %}
+        <table class="table-fun">
+            <thead>
+                <tr>
+                    <th>Exam Name</th>
+                    <th>Paper Title</th>
+                    <th>Professor</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in completed %}
+                <tr>
+                    <td>{{ exam.name }}</td>
+                    <td>{{ exam.question_paper.qPaperTitle }}</td>
+                    <td>{{ exam.professor }}</td>
+                    <td>
+                        <a href="{% url 'result' exam.id %}" class="btn-result">View Result</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="no-exams-card">
+            You haven't completed any exams yet. Go take one! 🚀
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

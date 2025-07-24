@@ -1,27 +1,66 @@
 {% extends 'base_faculty.html' %}
-
 {% block content %}
-<div class="container mt-4">
-    <h2>Add Questions Automatically</h2>
-    <p>Enter a context and the number of questions you want to generate.</p>
-    
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+<style>
+    .generate-container {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        max-width: 800px;
+        margin: 40px auto;
+    }
+    .generate-title {
+        font-size: 2.5em;
+        color: #4682B4;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .form-group label {
+        font-size: 1.2em;
+        font-weight: 700;
+        color: #555;
+    }
+    .form-control {
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 1em;
+    }
+    .btn-fun-generate {
+        font-size: 1.3em;
+        padding: 12px 30px;
+        border-radius: 15px;
+        border: none;
+        color: white;
+        background-color: #ff6347;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: block;
+        margin: 20px auto 0;
+    }
+    .btn-fun-generate:hover {
+        background-color: #e55337;
+    }
+</style>
+
+<div class="generate-container">
+    <h1 class="generate-title">🤖 Auto-Generate Questions</h1>
+    <p style="text-align: center; color: #555; margin-bottom: 30px;">
+        Enter some text or a topic, and I'll magically generate questions for you!
+    </p>
+
+    {% include 'partials/_messages.html' %}
 
     <form method="post">
         {% csrf_token %}
         <div class="form-group">
-            <label for="context">Context</label>
-            <textarea class="form-control" id="context" name="context" rows="3" required></textarea>
+            <label for="context">Topic or Context</label>
+            <textarea class="form-control" id="context" name="context" rows="5" required placeholder="e.g., 'The water cycle' or paste a paragraph about a topic."></textarea>
         </div>
         <div class="form-group">
-            <label for="number_of_questions">Number of Questions</label>
-            <input type="number" class="form-control" id="number_of_questions" name="number_of_questions" min="1" required>
+            <label for="number_of_questions">How many questions?</label>
+            <input type="number" class="form-control" id="number_of_questions" name="number_of_questions" min="1" max="10" required value="1">
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Generate Questions</button>
+        <button type="submit" class="btn-fun-generate">Generate Questions!</button>
     </form>
 </div>
 {% endblock %}
