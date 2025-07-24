@@ -334,6 +334,38 @@ def result(request,id):
     score = StuExam_DB.objects.get(student=student,examname=exam.name,qpaper=exam.question_paper).score
     return render(request,'exam/result.html',{'exam':exam,"score":score})
 
+@login_required(login_url='login')
+def review_exam(request, id):
+    student = request.user
+    exam = Exam_Model.objects.get(pk=id)
+    stu_exam = StuExam_DB.objects.get(student=student, examname=exam.name, qpaper=exam.question_paper)
+    
+    student_questions = stu_exam.questions.all()
+    
+    review_data = []
+    for sq in student_questions:
+        options = {
+            "A": sq.optionA,
+            "B": sq.optionB,
+            "C": sq.optionC,
+            "D": sq.optionD,
+        }
+        correct_answer_text = sq.answer
+        correct_choice = next((key for key, value in options.items() if value == correct_answer_text), None)
+
+        review_data.append({
+            'question_text': sq.question,
+            'options': options,
+            'student_choice': sq.choice,
+            'correct_choice': correct_choice,
+        })
+
+    context = {
+        'exam': exam,
+        'review_data': review_data,
+    }
+    return render(request, 'exam/review_exam.html', context)
+
 from django.conf import settings
 from django.contrib import messages
 
