@@ -341,17 +341,19 @@ def review_exam(request, id):
     stu_exam = StuExam_DB.objects.get(student=student, examname=exam.name, qpaper=exam.question_paper)
     
     student_questions = stu_exam.questions.all()
+    original_questions = exam.question_paper.questions.all()
     
     review_data = []
-    for sq in student_questions:
+    for i, sq in enumerate(student_questions):
+        original_q = original_questions[i]
         options = {
-            "A": sq.optionA,
-            "B": sq.optionB,
-            "C": sq.optionC,
-            "D": sq.optionD,
+            "A": {'text': sq.optionA, 'desc': original_q.descriptionA},
+            "B": {'text': sq.optionB, 'desc': original_q.descriptionB},
+            "C": {'text': sq.optionC, 'desc': original_q.descriptionC},
+            "D": {'text': sq.optionD, 'desc': original_q.descriptionD},
         }
         correct_answer_text = sq.answer
-        correct_choice = next((key for key, value in options.items() if value == correct_answer_text), None)
+        correct_choice = next((key for key, value in options.items() if value['text'] == correct_answer_text), None)
 
         review_data.append({
             'question_text': sq.question,
@@ -416,6 +418,10 @@ def add_questions_automatically(request):
                                 optionB=answers[1].get('text'),
                                 optionC=answers[2].get('text'),
                                 optionD=answers[3].get('text'),
+                                descriptionA=answers[0].get('description'),
+                                descriptionB=answers[1].get('description'),
+                                descriptionC=answers[2].get('description'),
+                                descriptionD=answers[3].get('description'),
                                 answer=correct_answer_text,
                                 max_marks=1
                             )

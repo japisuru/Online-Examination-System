@@ -11,6 +11,10 @@ class Question_DB(models.Model):
     optionB = models.CharField(max_length=100)
     optionC = models.CharField(max_length=100)
     optionD = models.CharField(max_length=100)
+    descriptionA = models.TextField(blank=True, null=True)
+    descriptionB = models.TextField(blank=True, null=True)
+    descriptionC = models.TextField(blank=True, null=True)
+    descriptionD = models.TextField(blank=True, null=True)
     answer = models.CharField(max_length=200)
     max_marks = models.IntegerField(default=0)
 
