@@ -234,6 +234,7 @@ def appear_exam(request,id):
         list_i = examMain.question_paper.questions.all()
         queslist = examQuestionsList.questions.all()
         i = 0
+        mark_per_question = 100 / list_i.count()
         for j in range(list_i.count()):
             ques = queslist[j]
             max_m = list_i[i].max_marks
@@ -242,8 +243,19 @@ def appear_exam(request,id):
                 ans = "E"
             ques.choice = ans
             ques.save()
-            if ans.lower() == ques.choice.lower() or ans == ques.choice:
-                examScore = examScore + max_m
+            answer = ques.answer
+            # Build a mapping of options to their labels
+            options = {
+                "A": ques.optionA,
+                "B": ques.optionB,
+                "C": ques.optionC,
+                "D": ques.optionD,
+            }
+
+            # Find which label matches the answer
+            correct_choice = next((key for key, value in options.items() if value == answer), None)
+            if ans.lower() == correct_choice.lower() or ans == correct_choice:
+                examScore = examScore + (max_m * mark_per_question)
             i+=1
 
         stuExam.score = examScore
