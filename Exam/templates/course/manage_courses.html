@@ -74,7 +74,7 @@
         {% for course in courses %}
             <li class="course-item">
                 <span class="course-name">{{ course.name }}</span>
-                <a href="{% url 'course_detail' course.id %}" class="btn-manage">Manage</a>
+                <a href="{% url 'course_dashboard' course.id %}" class="btn-manage">Manage</a>
             </li>
         {% empty %}
             <li class="course-item">You haven't created any courses yet.</li>

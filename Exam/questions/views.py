@@ -3,7 +3,7 @@ from django.urls import reverse
 import requests
 import json
 from .question_models import Question_DB
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.models import User
 from .models import *
 from django.contrib.auth.models import Group
@@ -17,90 +17,103 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib import messages
 from course.views import has_group
+from course.models import Course
 
 @login_required(login_url='faculty-login')
-def view_exams_prof(request):
+def view_exams_prof(request, course_id):
+    course = get_object_or_404(Course, id=course_id, professor=request.user)
     prof = request.user
-    prof_user = User.objects.get(username=prof)
-    permissions = False
-    if prof:
-        permissions = has_group(prof,"Professor")
-    if permissions:
-        new_Form = ExamForm(prof_user)
-        if request.method == 'POST' and permissions:
-            form = ExamForm(prof_user,request.POST)
-            if form.is_valid():
-                exam = form.save(commit=False)
-                exam.professor = prof
-                exam.save()
-                form.save_m2m()
-                return redirect('view_exams')
-
-        try:
-            exams = Exam_Model.objects.filter(professor=prof)
-        except Exam_Model.DoesNotExist:
-            exams = {}
-        return render(request, 'exam/mainexam.html', {
-            'exams': exams, 'examform': new_Form, 'prof': prof,
-        })
+    
+    if request.method == 'POST':
+        form = ExamForm(request.POST, professor=prof, course=course)
+        if form.is_valid():
+            exam = form.save(commit=False)
+            exam.professor = prof
+            exam.course = course
+            exam.save()
+            form.save_m2m()
+            return redirect('view_exams', course_id=course.id)
     else:
-        return redirect('view_exams_student')
+        form = ExamForm(professor=prof, course=course)
+
+    exams = Exam_Model.objects.filter(course=course)
+    return render(request, 'exam/mainexam.html', {
+        'exams': exams, 'examform': form, 'course': course
+    })
 
 @login_required(login_url='faculty-login')
-def add_question_paper(request):
-    prof = request.user
-    prof_user = User.objects.get(username=prof)
-    permissions = False
-    if prof:
-        permissions = has_group(prof,"Professor")
-    if permissions:
-        new_Form = QPForm(prof_user)
-        if request.method == 'POST' and permissions:
-            form = QPForm(prof_user,request.POST)
-            if form.is_valid():
-                exam = form.save(commit=False)
-                exam.professor = prof_user
-                exam.save()
-                form.save_m2m()
-                return redirect('faculty-add_question_paper')
-
-        try:
-            exams = Exam_Model.objects.filter(professor=prof)
-        except Exam_Model.DoesNotExist:
-            exams = {}
-        return render(request, 'exam/addquestionpaper.html', {
-            'exams': exams, 'examform': new_Form, 'prof': prof,
-        })
+def add_question_paper(request, course_id):
+    course = get_object_or_404(Course, id=course_id, professor=request.user)
+    
+    if request.method == 'POST':
+        form = QPForm(request.POST, course=course)
+        if form.is_valid():
+            paper = form.save(commit=False)
+            paper.professor = request.user
+            paper.course = course
+            paper.save()
+            form.save_m2m()
+            return redirect('faculty-add_question_paper', course_id=course.id)
     else:
-        return redirect('view_exams_student')
+        form = QPForm(course=course)
+
+    papers = Question_Paper.objects.filter(course=course)
+    return render(request, 'exam/addquestionpaper.html', {
+        'papers': papers, 'examform': form, 'course': course
+    })
 
 @login_required(login_url='faculty-login')
-def add_questions(request):
-    prof = request.user
-    prof_user = User.objects.get(username=prof)
-    permissions = False
-    if prof:
-        permissions = has_group(prof,"Professor")
-    if permissions:
-        new_Form = QForm()
-        if request.method == 'POST' and permissions:
-            form = QForm(request.POST)
-            if form.is_valid():
-                exam = form.save(commit=False)
-                exam.professor = prof_user
-                exam.save()
-                form.save_m2m()
-                return redirect('faculty-addquestions')
-
-        try:
-            exams = Exam_Model.objects.filter(professor=prof)
-        except Exam_Model.DoesNotExist:
-            exams = {}
-        return render(request, 'exam/addquestions.html', {
-            'exams': exams, 'examform': new_Form, 'prof': prof,
-        })
+def add_questions(request, course_id):
+    course = get_object_or_404(Course, id=course_id, professor=request.user)
+    
+    if request.method == 'POST':
+        form = QForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.professor = request.user
+            question.course = course
+            question.save()
+            return redirect('faculty-addquestions', course_id=course.id)
     else:
-        return redirect('view_exams_student')
+        form = QForm()
+        
+    return render(request, 'exam/addquestions.html', {
+        'examform': form, 'course': course
+    })
+
+@login_required(login_url='faculty-login')
+def question_bank(request, course_id):
+    course = get_object_or_404(Course, id=course_id, professor=request.user)
+    questions = Question_DB.objects.filter(course=course)
+    return render(request, 'questions/question_bank.html', {'questions': questions, 'course': course})
+
+@login_required(login_url='faculty-login')
+def edit_question(request, course_id, qno):
+    course = get_object_or_404(Course, id=course_id, professor=request.user)
+    question = get_object_or_404(Question_DB, qno=qno, course=course)
+    
+    if request.method == 'POST':
+        form = QForm(request.POST, instance=question)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Question updated successfully!')
+            return redirect('question_bank', course_id=course.id)
+    else:
+        form = QForm(instance=question)
+        
+    return render(request, 'questions/edit_question.html', {'form': form, 'course': course})
+
+@login_required(login_url='faculty-login')
+def delete_question(request, course_id, qno):
+    course = get_object_or_404(Course, id=course_id, professor=request.user)
+    question = get_object_or_404(Question_DB, qno=qno, course=course)
+    
+    if request.method == 'POST':
+        question.delete()
+        messages.success(request, 'Question deleted successfully!')
+        return redirect('question_bank', course_id=course.id)
+        
+    return render(request, 'questions/delete_question.html', {'question': question, 'course': course})
 
 @login_required(login_url='faculty-login')
 def view_previousexams_prof(request):
@@ -115,13 +128,15 @@ def view_previousexams_prof(request):
 @login_required(login_url='login')
 def student_view_previous(request):
     student = request.user
-    enrolled_courses = student.enrolled_courses.all()
-    exams = Exam_Model.objects.filter(course__in=enrolled_courses)
     
+    # Get all completed exams for the student
+    completed_student_exams = StuExam_DB.objects.filter(student=student, completed=1)
+    
+    # Extract the exam details
     list_of_completed = []
-    for exam in exams:
-        if StuExam_DB.objects.filter(examname=exam.name, student=student, completed=1).exists():
-            stu_exam = StuExam_DB.objects.get(examname=exam.name, student=student)
+    for stu_exam in completed_student_exams:
+        exam = stu_exam.qpaper.exams.first()  # Get the corresponding Exam_Model instance
+        if exam:
             list_of_completed.append({
                 'exam': exam,
                 'score': stu_exam.score,
@@ -218,10 +233,13 @@ def view_exams_student(request):
     list_of_completed = []
     list_un = []
     for exam in exams:
-        if StuExam_DB.objects.filter(examname=exam.name ,student=request.user).exists():
-            if StuExam_DB.objects.get(examname=exam.name,student=request.user).completed == 1:
+        try:
+            stu_exam = StuExam_DB.objects.get(examname=exam.name, student=request.user)
+            if stu_exam.completed == 1:
                 list_of_completed.append(exam)
-        else:
+            else:
+                list_un.append(exam)
+        except StuExam_DB.DoesNotExist:
             list_un.append(exam)
 
     return render(request,'exam/mainexamstudent.html',{
@@ -368,11 +386,9 @@ def review_exam(request, id):
     }
     return render(request, 'exam/review_exam.html', context)
 
-from django.conf import settings
-from django.contrib import messages
-
 @login_required(login_url='faculty-login')
-def add_questions_automatically(request):
+def add_questions_automatically(request, course_id):
+    course = get_object_or_404(Course, id=course_id, professor=request.user)
     prof = request.user
     permissions = has_group(prof, "Professor")
     if not permissions:
@@ -385,20 +401,18 @@ def add_questions_automatically(request):
         if context and number_of_questions:
             try:
                 api_url = settings.API_URL
-                print("settings.API_URL: " + settings.API_URL)
                 payload = json.dumps({
                     "context": context,
                     "number_of_answers_for_questions": 4,
                     "number_of_questions": int(number_of_questions)
                 })
-                print("settings.API_KEY: " + settings.API_KEY)
                 headers = {
                     'accept': 'application/json',
                     'x-api-key': settings.API_KEY,
                     'Content-Type': 'application/json'
                 }
                 response = requests.request("POST", api_url, headers=headers, data=payload)
-                response.raise_for_status()  # Raise an exception for bad status codes
+                response.raise_for_status()
                 data = response.json()
 
                 if 'data' in data and 'questions' in data['data']:
@@ -413,6 +427,7 @@ def add_questions_automatically(request):
                             
                             Question_DB.objects.create(
                                 professor=prof,
+                                course=course,
                                 question=q_data.get('question_text'),
                                 optionA=answers[0].get('text'),
                                 optionB=answers[1].get('text'),
@@ -426,7 +441,7 @@ def add_questions_automatically(request):
                                 max_marks=1
                             )
                     messages.success(request, 'Questions generated successfully!')
-                    return redirect('faculty-add-questions-auto')
+                    return redirect('faculty-add-questions-auto', course_id=course.id)
                 else:
                     messages.error(request, 'Failed to generate questions. Invalid API response.')
 
@@ -435,31 +450,5 @@ def add_questions_automatically(request):
             except Exception as e:
                 messages.error(request, f"An error occurred: {e}")
 
-    return render(request, 'exam/add_questions_automatically.html')
+    return render(request, 'exam/add_questions_automatically.html', {'course': course})
 
-@login_required(login_url='faculty-login')
-def question_bank(request):
-    questions = Question_DB.objects.filter(professor=request.user)
-    return render(request, 'questions/question_bank.html', {'questions': questions})
-
-@login_required(login_url='faculty-login')
-def edit_question(request, qno):
-    question = Question_DB.objects.get(qno=qno, professor=request.user)
-    if request.method == 'POST':
-        form = QForm(request.POST, instance=question)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Question updated successfully!')
-            return redirect('question_bank')
-    else:
-        form = QForm(instance=question)
-    return render(request, 'questions/edit_question.html', {'form': form})
-
-@login_required(login_url='faculty-login')
-def delete_question(request, qno):
-    question = Question_DB.objects.get(qno=qno, professor=request.user)
-    if request.method == 'POST':
-        question.delete()
-        messages.success(request, 'Question deleted successfully!')
-        return redirect('question_bank')
-    return render(request, 'questions/delete_question.html', {'question': question})

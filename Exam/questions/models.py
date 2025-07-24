@@ -20,18 +20,22 @@ class Exam_Model(models.Model):
 
 
 class ExamForm(ModelForm):
-    def __init__(self,professor,*args,**kwargs):
-        super (ExamForm,self ).__init__(*args,**kwargs)
-        self.fields['question_paper'].queryset = Question_Paper.objects.filter(professor=professor)
-        self.fields['course'].queryset = Course.objects.filter(professor=professor)
+    def __init__(self, *args, **kwargs):
+        professor = kwargs.pop('professor', None)
+        course = kwargs.pop('course', None)
+        super(ExamForm, self).__init__(*args, **kwargs)
+        if course:
+            self.fields['question_paper'].queryset = Question_Paper.objects.filter(
+                professor=professor, course=course
+            )
 
     class Meta:
         model = Exam_Model
         fields = '__all__'
-        exclude = ['professor']
+        exclude = ['professor', 'course']
         widgets = {
-            'name': forms.TextInput(attrs = {'class':'form-control'}),
-            'total_marks' : forms.NumberInput(attrs = {'class':'form-control'}),
-            'start_time': forms.DateTimeInput(attrs = {'class':'form-control'}),
-            'end_time': forms.DateTimeInput(attrs = {'class':'form-control'})
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'total_marks': forms.NumberInput(attrs={'class': 'form-control'}),
+            'start_time': forms.DateTimeInput(attrs={'class': 'form-control'}),
+            'end_time': forms.DateTimeInput(attrs={'class': 'form-control'})
         }

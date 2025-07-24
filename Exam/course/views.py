@@ -44,3 +44,8 @@ def course_detail(request, course_id):
         'enrolled_students': enrolled_students,
         'unenrolled_students': unenrolled_students
     })
+
+@login_required(login_url='faculty-login')
+def course_dashboard(request, course_id):
+    course = Course.objects.get(id=course_id, professor=request.user)
+    return render(request, 'course/course_dashboard.html', {'course': course})

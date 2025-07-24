@@ -1,10 +1,12 @@
 from django.db import models
 from django.forms import ModelForm
 from django.contrib.auth.models import User
+from course.models import Course
 from django import forms
 
 class Question_DB(models.Model):
     professor = models.ForeignKey(User, limit_choices_to={'groups__name': "Professor"}, on_delete=models.CASCADE, null=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='questions', null=True)
     qno = models.AutoField(primary_key=True)
     question = models.CharField(max_length=100)
     optionA = models.CharField(max_length=100)
@@ -26,7 +28,7 @@ class QForm(ModelForm):
     class Meta:
         model = Question_DB
         fields = '__all__'
-        exclude = ['qno', 'professor']
+        exclude = ['qno', 'professor', 'course']
         widgets = {
             'question': forms.TextInput(attrs = {'class':'form-control'}),
             'optionA': forms.TextInput(attrs = {'class':'form-control'}),

@@ -1,0 +1,68 @@
+{% extends 'base_faculty.html' %}
+{% block content %}
+<style>
+    .page-title {
+        font-size: 2.8em;
+        color: #4682B4;
+        text-align: center;
+        margin: 40px 0;
+    }
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+    }
+    .dashboard-card {
+        background-color: #fff;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+    .card-title {
+        font-size: 1.8em;
+        font-weight: 700;
+        color: #ff6347;
+        margin-bottom: 20px;
+    }
+    .btn-manage {
+        font-size: 1.1em;
+        padding: 10px 25px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: white;
+        background-color: #007bff;
+    }
+</style>
+
+<div class="container">
+    <h1 class="page-title">Dashboard for {{ course.name }}</h1>
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <h2 class="card-title">📖 Question Bank</h2>
+            <p>Manage the questions for this course.</p>
+            <a href="{% url 'question_bank' course.id %}" class="btn-manage">Manage Questions</a>
+        </div>
+        <div class="dashboard-card">
+            <h2 class="card-title">📜 Question Papers</h2>
+            <p>Create and manage question papers.</p>
+            <a href="{% url 'faculty-add_question_paper' course.id %}" class="btn-manage">Manage Papers</a>
+        </div>
+        <div class="dashboard-card">
+            <h2 class="card-title">🚀 Exams</h2>
+            <p>Create and view exams for this course.</p>
+            <a href="{% url 'view_exams' course.id %}" class="btn-manage">Manage Exams</a>
+        </div>
+        <div class="dashboard-card">
+            <h2 class="card-title">✨ Add Questions Automatically</h2>
+            <p>Use AI to generate questions for this course.</p>
+            <a href="{% url 'faculty-add-questions-auto' course.id %}" class="btn-manage">Generate Questions</a>
+        </div>
+        <div class="dashboard-card">
+            <h2 class="card-title">🧑‍🎓 Students</h2>
+            <p>Manage student enrollment for this course.</p>
+            <a href="{% url 'course_detail' course.id %}" class="btn-manage">Manage Students</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -50,7 +50,7 @@
 
 <div class="form-container">
     <h1 class="form-title">📜 Create a New Question Paper</h1>
-    <form method="POST" action="{% url 'faculty-add_question_paper' %}">
+    <form method="POST" action="{% url 'faculty-add_question_paper' course_id=course.id %}">
         {% csrf_token %}
         <div class="form-group">
             {{ examform.as_p }}

@@ -47,7 +47,7 @@
 
 <div class="form-container">
     <h1 class="form-title">🚀 Create a New Main Exam</h1>
-    <form method="POST" action="{% url 'view_exams' %}">
+    <form method="POST" action="{% url 'view_exams' course_id=course.id %}">
         {% csrf_token %}
         <div class="form-group">
             {{ examform.as_p }}
