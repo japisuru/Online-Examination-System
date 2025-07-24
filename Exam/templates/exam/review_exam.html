@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block body %}
+<style>
+    .page-container {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-top: 40px;
+    }
+    .page-title {
+        font-size: 2.8em;
+        color: #ff6347;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .question-review-card {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border-left: 8px solid #ccc;
+    }
+    .question-text {
+        font-size: 1.5em;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+    .option-list {
+        list-style: none;
+        padding: 0;
+    }
+    .option-item {
+        font-size: 1.2em;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+    .correct-answer {
+        background-color: #d4edda; /* Light green */
+        border: 2px solid #28a745;
+    }
+    .wrong-answer {
+        background-color: #f8d7da; /* Light red */
+        border: 2px solid #dc3545;
+    }
+    .not-chosen {
+        background-color: #e9ecef;
+    }
+    .choice-indicator {
+        font-weight: 700;
+        margin-left: 10px;
+        font-style: italic;
+    }
+</style>
+
+<div class="page-container">
+    <h1 class="page-title">🔍 Reviewing: {{ exam.name }}</h1>
+
+    {% for item in review_data %}
+        <div class="question-review-card">
+            <p class="question-text">{{ forloop.counter }}. {{ item.question_text }}</p>
+            <ul class="option-list">
+                {% for choice, text in item.options.items %}
+                    <li class="option-item 
+                        {% if choice == item.correct_choice %}correct-answer{% endif %}
+                        {% if choice == item.student_choice and item.student_choice != item.correct_choice %}wrong-answer{% endif %}
+                        {% if choice != item.correct_choice and choice != item.student_choice %}not-chosen{% endif %}">
+                        
+                        {{ choice }}. {{ text }}
+
+                        {% if choice == item.student_choice %}
+                            <span class="choice-indicator">(Your Answer)</span>
+                        {% endif %}
+                        {% if choice == item.correct_choice and choice != item.student_choice %}
+                            <span class="choice-indicator">(Correct Answer)</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
