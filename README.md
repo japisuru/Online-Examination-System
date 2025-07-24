@@ -1,122 +1,123 @@
 # Online Examination System
 
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
+This is a comprehensive online examination system built with Django. It provides a platform for professors to create and manage exams, and for students to take them in a secure and user-friendly environment. The user interface has been designed to be fun and engaging, especially for younger users.
 
-## Introduction
-The Online Examination System is a digital platform designed to simplify the examination process, allowing students to take exams from anywhere at any time. It is developed using Python, Django, CSS, HTML, and JavaScript. The system includes separate interfaces for students, professors, and administrators, ensuring a smooth and efficient exam management experience.
+## ✨ Features
 
-## Main Features
-- **Auto-Submit Form**: Exams are automatically submitted when the timer runs out.
-- **Focus Monitoring**: If a student’s window goes out of focus five times during an exam, the professor receives an email alert.
-- **Automatic Mark Calculation**: Marks are calculated automatically once the student submits the exam.
-- **User Types**: The system supports two types of users - Professors and Students.
-- **Control Panels**: Separate control panels for administrators and students.
-- **MCQ Exams**: Students can take multiple-choice exams, view their scores, and see the correct answers.
-- **Superuser Account**: Separate superuser account for account validations.
+- **Separate Student and Professor Portals:** Distinct interfaces for students and faculty.
+- **Kid-Friendly User Interface:** A fun, colorful, and intuitive theme across the entire application.
+- **Course Management:** Professors can create courses and enroll students.
+- **Exam Creation:**
+    - Create question papers by selecting from a question bank.
+    - Set exam start and end times.
+    - Associate exams with specific courses.
+- **Exam Experience:**
+    - One-question-at-a-time view to reduce overwhelm.
+    - Progress bar to track completion.
+    - Countdown timer.
+- **Automated Grading:** Scores are calculated automatically upon submission.
+- **Result Viewing:** Students can view their results immediately after completing an exam.
+- **Cross-Window Communication:** The exam window automatically closes upon submission, and the main window redirects to the results page.
 
-## Project Overview
-![Project Overview](https://user-images.githubusercontent.com/47894634/117118618-9c1d1b00-adae-11eb-8b61-a6e87578f8da.png)
+## 🚀 Getting Started
 
-## Installation Guide
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
-- Python
-- Django
-- Pipenv
 
-### Steps to Run the Project
+- Python 3.8+
+- pip (Python package installer)
 
-1. **Clone the Project**
-    ```bash
-    git clone https://github.com/Mohitkumar6122/Online-Examination-System.git
-    cd Exam-Portal
-    ```
+### 1. Clone the Repository
 
-2. **Set Up Environment Variables**
-    Create a `.env` file in the `Exam-Portal` directory with the following contents:
-    ```bash
-    export EMAIL_HOST_PASSWORD=<PASSWORD_OF_EMAIL_ACCOUNT>
-    export EMAIL_HOST_USER=<EMAIL_ACCOUNT>
-    export EMAIL_HOST=<SMTP>
-    export DEFAULT_FROM_EMAIL=<EMAIL_ACCOUNT>
-    ```
+```bash
+git clone <your-repository-url>
+cd Online-Examination-System/Exam
+```
 
-    For Windows, create a `env.bat` file:
-    ```bash
-    set EMAIL_HOST_PASSWORD=<PASSWORD_OF_EMAIL_ACCOUNT>
-    set EMAIL_HOST_USER=<EMAIL_ACCOUNT>
-    set EMAIL_HOST=<SMTP>
-    set DEFAULT_FROM_EMAIL=<EMAIL_ACCOUNT>
-    ```
+### 2. Set Up a Virtual Environment
 
-3. **Install Dependencies**
-    ```bash
-    pip install pipenv
-    pip install django[argon2]
-    pipenv shell
-    pipenv install
-    ```
+It's highly recommended to use a virtual environment to keep project dependencies isolated.
 
-4. **Load Environment Variables**
-    On Linux:
-    ```bash
-    source .env
-    ```
-    On Windows:
-    ```bash
-    env.bat
-    ```
+```bash
+# For Linux/macOS
+python3 -m venv venv
+source venv/bin/activate
 
-5. **Database Migrations**
-    ```bash
-    cd Exam
-    python manage.py migrate
-    python manage.py makemigrations
-    python manage.py migrate
-    ```
+# For Windows
+python -m venv venv
+venv\Scripts\activate
+```
 
-6. **Create a Superuser Account**
-    ```bash
-    python manage.py createsuperuser
-    ```
+### 3. Install Dependencies
 
-7. **Run the Server**
-    ```bash
-    python manage.py runserver
-    ```
+Install all the required packages from the `requirements.txt` file.
 
-    The website should now be running at [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
+```bash
+pip install -r requirements.txt
+```
+*(Note: If a `requirements.txt` file is not present, you may need to install Django manually: `pip install django`)*
 
-8. **Set Up User Groups**
-    - Go to [http://127.0.0.1:8000/admin/auth/group/add/](http://127.0.0.1:8000/admin/auth/group/add/)
-    - Login with the superuser account.
-    - Add two groups named "Professor" and "Students".
+### 4. Set Up the Database
 
-9. **Professor Verification**
-    - Admins need to manually add professors to the "Professor" group once they create a new account.
+This project uses SQLite, which is configured by default. Run the following commands to create the database and apply the necessary structure.
 
-## Contributors ✨
+```bash
+python3 manage.py makemigrations
+python3 manage.py migrate
+```
 
-Thanks to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+### 5. Create an Administrator Account
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/harbhajan2109"><img src="https://avatars.githubusercontent.com/u/56828657?v=4?s=100" width="100px;" alt="harbhajan2109"/><br /><sub><b>harbhajan2109</b></sub></a><br /><a href="https://github.com/Mohitkumar6122/Online-Examination-System/commits?author=harbhajan2109" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Hritwik-Bhardwaj"><img src="https://avatars.githubusercontent.com/u/46474138?v=4?s=100" width="100px;" alt="Hritwik Bhardwaj"/><br /><sub><b>Hritwik Bhardwaj</b></sub></a><br /><a href="https://github.com/Mohitkumar6122/Online-Examination-System/commits?author=Hritwik-Bhardwaj" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/abhishekkumar29"><img src="https://avatars.githubusercontent.com/u/83762781?v=4?s=100" width="100px;" alt="abhishekkumar29"/><br /><sub><b>abhishekkumar29</b></sub></a><br /><a href="https://github.com/Mohitkumar6122/Online-Examination-System/commits?author=abhishekkumar29" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com"><img src="https://avatars.githubusercontent.com/u/20371468?v=4?s=100" width="100px;" alt="Anthony Aniah Abuokwen"/><br /><sub><b>Anthony Aniah Abuokwen</b></sub></a><br /><a href="https://github.com/Mohitkumar6122/Online-Examination-System/commits?author=anthonyaniah" title="Code">💻</a></td>
-    </tr>
-  </tbody>
-</table>
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
+You'll need a superuser account to access the Django admin panel, where you can manage users and groups.
 
-<!-- ALL-CONTRIBUTORS-LIST:END -->
+```bash
+python3 manage.py createsuperuser
+```
+Follow the prompts to set a username, email, and password.
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind are welcome!
+### 6. Run the Development Server
+
+Once everything is set up, you can start the development server.
+
+```bash
+python3 manage.py runserver
+```
+The application will be available at `http://127.0.0.1:8000`.
+
+## 📝 How to Use the System
+
+### Step 1: Create User Groups
+
+For the course management system to work, you first need to create two essential user groups.
+
+1.  Navigate to the admin panel: `http://127.0.0.1:8000/admin/`
+2.  Log in with your superuser credentials.
+3.  Go to **Groups** and click **"Add Group"**.
+4.  Create a group named `Professor`.
+5.  Create another group named `Student`.
+
+### Step 2: Create Users (Professors and Students)
+
+1.  In the admin panel, go to **Users** and click **"Add User"**.
+2.  Create users for your professors and students.
+3.  **Crucially**, assign each user to the appropriate group (`Professor` or `Student`) in the "Groups" section of the user creation page.
+
+### Step 3: Manage Courses (as a Professor)
+
+1.  Log out of the admin account and log in as a professor.
+2.  On the sidebar, click **"📚 Courses"**.
+3.  Here you can create new courses and click **"Manage"** to add students to them.
+
+### Step 4: Create and Assign Exams (as a Professor)
+
+1.  Follow the three-step exam creation process from the faculty dashboard.
+2.  When creating a **"New Main Exam"**, you will now see a **Course** dropdown menu.
+3.  Select the course to which this exam belongs.
+
+### Step 5: Take an Exam (as a Student)
+
+1.  Log in as a student who has been enrolled in a course.
+2.  The student will now see the exams that are available for their enrolled courses.
+3.  Click **"Appear Now!"** to start an exam.
+4.  Upon submission, the exam window will close, and the main window will display the results.
