@@ -114,20 +114,38 @@ def view_previousexams_prof(request):
 
 @login_required(login_url='login')
 def student_view_previous(request):
-    exams = Exam_Model.objects.all()
+    student = request.user
+    enrolled_courses = student.enrolled_courses.all()
+    exams = Exam_Model.objects.filter(course__in=enrolled_courses)
+    
     list_of_completed = []
-    list_un = []
     for exam in exams:
-        if StuExam_DB.objects.filter(examname=exam.name ,student=request.user).exists():
-            if StuExam_DB.objects.get(examname=exam.name,student=request.user).completed == 1:
-                list_of_completed.append(exam)
-        else:
-            list_un.append(exam)
+        if StuExam_DB.objects.filter(examname=exam.name, student=student, completed=1).exists():
+            stu_exam = StuExam_DB.objects.get(examname=exam.name, student=student)
+            list_of_completed.append({
+                'exam': exam,
+                'score': stu_exam.score,
+                'total_marks': exam.total_marks
+            })
 
-    return render(request,'exam/previousstudent.html',{
-        'exams':list_un,
-        'completed':list_of_completed
-    })
+    # Data for charts
+    exam_names = [item['exam'].name for item in list_of_completed]
+    scores = [item['score'] for item in list_of_completed]
+    total_marks = [item['total_marks'] for item in list_of_completed]
+
+    # Calculate pass/fail
+    pass_count = sum(1 for item in list_of_completed if (item['score'] / item['total_marks']) >= 0.4) # 40% pass mark
+    fail_count = len(list_of_completed) - pass_count
+
+    context = {
+        'completed_exams': list_of_completed,
+        'exam_names_json': json.dumps(exam_names),
+        'scores_json': json.dumps(scores),
+        'total_marks_json': json.dumps(total_marks),
+        'pass_count': pass_count,
+        'fail_count': fail_count,
+    }
+    return render(request, 'exam/previousstudent.html', context)
 
 @login_required(login_url='faculty-login')
 def view_students_prof(request):
@@ -155,23 +173,41 @@ def view_students_prof(request):
 
 @login_required(login_url='faculty-login')
 def view_results_prof(request):
-    students = User.objects.filter(groups__name = "Student")
-    dicts = {}
-    prof = request.user
-    professor = User.objects.get(username=prof.username)
-    try:
-        examn = Exam_Model.objects.filter(professor=professor)
-    except Exam_Model.DoesNotExist:
-        examn = {}
-    for student in students:
-        for ex in examn:
-            if StuExam_DB.objects.filter(student=student,examname=ex.name).exists():
-                score = StuExam_DB.objects.get(student=student,examname=ex.name).score
-                if student.username not in dicts:
-                    dicts[student.username] = [score]
-                else:
-                    dicts[student.username].append(score)
-    return render(request,'exam/resultsstudent.html',{'students':dicts})
+    professor = request.user
+    exams = Exam_Model.objects.filter(professor=professor)
+    
+    exam_stats = []
+    total_pass = 0
+    total_fail = 0
+
+    for exam in exams:
+        student_exams = StuExam_DB.objects.filter(examname=exam.name, completed=1)
+        scores = [se.score for se in student_exams]
+        
+        if scores:
+            average_score = sum(scores) / len(scores)
+            pass_count = sum(1 for score in scores if (score / exam.total_marks) >= 0.4)
+            fail_count = len(scores) - pass_count
+            total_pass += pass_count
+            total_fail += fail_count
+            
+            exam_stats.append({
+                'name': exam.name,
+                'average_score': average_score,
+                'total_marks': exam.total_marks,
+                'pass_count': pass_count,
+                'fail_count': fail_count,
+                'student_count': len(scores)
+            })
+
+    context = {
+        'exam_stats': exam_stats,
+        'exam_names_json': json.dumps([stat['name'] for stat in exam_stats]),
+        'avg_scores_json': json.dumps([stat['average_score'] for stat in exam_stats]),
+        'total_pass_json': json.dumps(total_pass),
+        'total_fail_json': json.dumps(total_fail),
+    }
+    return render(request, 'exam/resultsstudent.html', context)
 
 @login_required(login_url='login')
 def view_exams_student(request):

@@ -2,76 +2,203 @@
 {% block body %}
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <style>
-    body {
-        background-color: #f0f8ff;
-        font-family: 'Comic Neue', cursive;
-    }
-    .distribute {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 40px;
-        padding: 50px;
-    }
-    .card-fun {
-        width: 22em;
-        height: 18em;
-        background-color: #fff;
-        border-radius: 20px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
+    .dashboard-container {
         padding: 20px;
-        transition: transform 0.3s, box-shadow 0.3s;
-        text-decoration: none;
+    }
+    .welcome-header {
         color: #333;
-    }
-    .card-fun:hover {
-        transform: translateY(-15px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-        text-decoration: none;
-        color: #007bff;
-    }
-    .card-icon {
-        font-size: 4em;
+        font-size: 2.5em;
+        font-weight: 700;
         margin-bottom: 20px;
     }
-    .card-title {
-        font-size: 2em;
-        color: #ff6347;
-        margin-bottom: 10px;
+    .stat-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
     }
-    .card-description {
-        font-size: 1.1em;
-        color: #555;
+    .stat-card {
+        background-color: #fff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+    }
+    .stat-icon {
+        font-size: 2.5em;
+        margin-right: 15px;
+    }
+    .stat-info .value {
+        font-size: 1.8em;
+        font-weight: 700;
+        color: #333;
+    }
+    .stat-info .label {
+        font-size: 1em;
+        color: #777;
+    }
+    .main-dashboard {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+    .dashboard-widget {
+        background-color: #fff;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .widget-title {
+        font-size: 1.5em;
+        font-weight: 700;
+        color: #ff6347;
+        margin-bottom: 20px;
+    }
+    .upcoming-list .exam-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+    .upcoming-list .exam-item:last-child {
+        border-bottom: none;
+    }
+    .btn-take-exam {
+        font-size: 0.9em;
+        padding: 5px 15px;
+        border-radius: 8px;
+        background-color: #28a745;
+        color: white;
+        text-decoration: none;
+    }
+    .latest-result-card {
+        text-align: center;
+    }
+    .latest-score {
+        font-size: 3em;
+        font-weight: 700;
+        color: #007bff;
+    }
+    .latest-score span {
+        font-size: 0.5em;
+        color: #777;
+    }
+    .btn-view-details {
+        margin-top: 10px;
+        font-size: 0.9em;
+        padding: 5px 15px;
+        border-radius: 8px;
+        background-color: #17a2b8;
+        color: white;
+        text-decoration: none;
     }
 </style>
 
-<div class="container mt-4">
-    {% include 'partials/_messages.html' %}
+<div class="dashboard-container">
+    <h1 class="welcome-header">👋 Welcome Back, {{ request.user.username }}!</h1>
+    
+    <div class="stat-cards">
+        <div class="stat-card" style="border-left: 5px solid #007bff;">
+            <div class="stat-icon">📚</div>
+            <div class="stat-info">
+                <div class="value">{{ courses_enrolled_count }}</div>
+                <div class="label">Courses Enrolled</div>
+            </div>
+        </div>
+        <div class="stat-card" style="border-left: 5px solid #28a745;">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+                <div class="value">{{ exams_completed_count }}</div>
+                <div class="label">Exams Completed</div>
+            </div>
+        </div>
+        <div class="stat-card" style="border-left: 5px solid #ffc107;">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-info">
+                <div class="value">{{ average_score|floatformat:2 }}%</div>
+                <div class="label">Average Score</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-dashboard">
+        <div class="dashboard-widget" style="grid-column: 1 / -1;">
+            <h2 class="widget-title">Your Performance Over Time</h2>
+            {% if has_completed_exams %}
+                <canvas id="performanceLineChart" style="max-height: 250px;"></canvas>
+            {% else %}
+                <p>Complete your first exam to see your performance trend!</p>
+            {% endif %}
+        </div>
+        <div class="dashboard-widget">
+            <h2 class="widget-title">🚀 Upcoming Exams</h2>
+            <div class="upcoming-list">
+                {% for exam in upcoming_exams %}
+                    <div class="exam-item">
+                        <div>
+                            <strong>{{ exam.name }}</strong><br>
+                            <small>{{ exam.course.name }} | Starts: {{ exam.start_time|date:"M d, H:i" }}</small>
+                        </div>
+                        <a href="#" onclick="window.open('{% url 'appear-exam' exam.id %}', '', 'width=900,height=800')" class="btn-take-exam">Take Exam</a>
+                    </div>
+                {% empty %}
+                    <p>No upcoming exams. Great job!</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="dashboard-widget">
+            <h2 class="widget-title">🏆 Latest Result</h2>
+            {% if latest_result %}
+                <div class="latest-result-card">
+                    <h4>{{ latest_exam_model.name }}</h4>
+                    <div class="latest-score">{{ latest_result.score|floatformat:0 }}<span>/ {{ latest_exam_model.total_marks }}</span></div>
+                    <a href="{% url 'result' latest_exam_model.id %}" class="btn-view-details">View Details</a>
+                </div>
+            {% else %}
+                <p>Your first result will appear here once you complete an exam.</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
-<div class="distribute">
-    <a href="{% url 'view_exams_student' %}" class="card-fun" style="background-color: #ffebcd;">
-        <div class="card-icon">📝</div>
-        <h1 class="card-title">Exams</h1>
-        <p class="card-description">Take your upcoming exams here. Good luck!</p>
-    </a>
-    <a href="{% url 'student-previous' %}" class="card-fun" style="background-color: #dcfce7;">
-        <div class="card-icon">📊</div>
-        <h1 class="card-title">Summary</h1>
-        <p class="card-description">Check your results and attendance.</p>
-    </a>
-    <a href="{% url 'email-student-pref' %}" class="card-fun" style="background-color: #f3e8ff;">
-        <div class="card-icon">⚙️</div>
-        <h1 class="card-title">Settings</h1>
-        <p class="card-description">Change your account settings.</p>
-    </a>
-</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        {% if has_completed_exams %}
+            const examNames = JSON.parse('{{ exam_names_json|safe }}');
+            const percentages = JSON.parse('{{ percentages_json|safe }}');
+
+            const lineCtx = document.getElementById('performanceLineChart').getContext('2d');
+            new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: examNames,
+                    datasets: [{
+                        label: 'Performance Trend (%)',
+                        data: percentages,
+                        fill: true,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            max: 100,
+                            ticks: { callback: value => value + "%" }
+                        } 
+                    },
+                    maintainAspectRatio: false
+                }
+            });
+        {% endif %}
+    });
+</script>
 {% endblock %}

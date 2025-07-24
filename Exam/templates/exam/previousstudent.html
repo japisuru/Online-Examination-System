@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block body %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     .page-container {
         background-color: #fff;
@@ -13,6 +14,20 @@
         color: #ff6347;
         text-align: center;
         margin-bottom: 30px;
+    }
+    .charts-container {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+    }
+    .chart-card {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        width: 100%;
+        max-width: 450px; /* Controls the max size */
     }
     .table-fun {
         width: 100%;
@@ -31,12 +46,6 @@
         color: #fff;
         font-weight: 700;
     }
-    .table-fun tbody tr {
-        border-bottom: 1px solid #eee;
-    }
-    .table-fun tbody tr:last-child {
-        border-bottom: none;
-    }
     .table-fun tbody tr:hover {
         background-color: #fff0eb;
     }
@@ -47,14 +56,7 @@
         border: none;
         color: white;
         background-color: #17a2b8;
-        cursor: pointer;
         text-decoration: none;
-        transition: background-color 0.3s;
-    }
-    .btn-result:hover {
-        background-color: #138496;
-        text-decoration: none;
-        color: white;
     }
     .no-exams-card {
         background-color: #d1ecf1;
@@ -67,25 +69,34 @@
 </style>
 
 <div class="page-container">
-    <h1 class="page-title">🏆 Your Past Exams & Results</h1>
-    {% if completed %}
+    <h1 class="page-title">📊 Your Performance Summary</h1>
+
+    {% if completed_exams %}
+        <div class="charts-container">
+            <div class="chart-card">
+                <canvas id="scoresBarChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <canvas id="passFailDoughnutChart"></canvas>
+            </div>
+        </div>
+
+        <h2 class="page-title" style="font-size: 2em; margin-top: 40px;">🏆 Detailed Results</h2>
         <table class="table-fun">
             <thead>
                 <tr>
                     <th>Exam Name</th>
-                    <th>Paper Title</th>
-                    <th>Professor</th>
+                    <th>Score</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                {% for exam in completed %}
+                {% for item in completed_exams %}
                 <tr>
-                    <td>{{ exam.name }}</td>
-                    <td>{{ exam.question_paper.qPaperTitle }}</td>
-                    <td>{{ exam.professor }}</td>
+                    <td>{{ item.exam.name }}</td>
+                    <td>{{ item.score }} / {{ item.total_marks }}</td>
                     <td>
-                        <a href="{% url 'result' exam.id %}" class="btn-result">View Result</a>
+                        <a href="{% url 'result' item.exam.id %}" class="btn-result">View Details</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -93,8 +104,61 @@
         </table>
     {% else %}
         <div class="no-exams-card">
-            You haven't completed any exams yet. Go take one! 🚀
+            You haven't completed any exams yet. Go take one to see your awesome stats! 🚀
         </div>
     {% endif %}
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const examNames = JSON.parse('{{ exam_names_json|safe }}');
+        const scores = JSON.parse('{{ scores_json|safe }}');
+        const totalMarks = JSON.parse('{{ total_marks_json|safe }}');
+        const passCount = {{ pass_count }};
+        const failCount = {{ fail_count }};
+
+        // 1. Bar Chart: Scores per Exam
+        const barCtx = document.getElementById('scoresBarChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: examNames,
+                datasets: [{
+                    label: 'Your Score',
+                    data: scores,
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Total Marks',
+                    data: totalMarks,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: { title: { display: true, text: 'Recent Exam Scores' } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // 2. Doughnut Chart: Pass/Fail Ratio
+        const doughnutCtx = document.getElementById('passFailDoughnutChart').getContext('2d');
+        new Chart(doughnutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pass', 'Fail'],
+                datasets: [{
+                    data: [passCount, failCount],
+                    backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(255, 206, 86, 0.5)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 206, 86, 1)'],
+                }]
+            },
+            options: {
+                plugins: { title: { display: true, text: 'Overall Performance (40% Pass Mark)' } }
+            }
+        });
+    });
+</script>
 {% endblock %}

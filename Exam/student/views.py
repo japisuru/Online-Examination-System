@@ -11,13 +11,66 @@ from django.utils.encoding import force_bytes, force_text, DjangoUnicodeDecodeEr
 from .utils import account_activation_token
 from django.core.mail import EmailMessage
 import threading
+import json
 from django.contrib.auth.models import User
 from studentPreferences.models import StudentPreferenceModel
 from django.contrib.auth.models import Group
+from questions.models import Exam_Model
+from student.models import StuExam_DB
 
 @login_required(login_url='login')
 def index(request):
-    return render(request,'student/index.html')
+    student = request.user
+    enrolled_courses = student.enrolled_courses.all()
+    all_exams = Exam_Model.objects.filter(course__in=enrolled_courses).order_by('start_time')
+    
+    completed_exams_qset = StuExam_DB.objects.filter(student=student, completed=1).order_by('-id')
+    completed_exams_list = [item.examname for item in completed_exams_qset]
+
+    # Performance Trend Data
+    list_of_completed_for_chart = []
+    for stu_exam in completed_exams_qset.reverse(): # Reverse for chronological order in chart
+        exam_model = all_exams.filter(name=stu_exam.examname).first()
+        if exam_model:
+            list_of_completed_for_chart.append({
+                'exam': exam_model,
+                'score': stu_exam.score,
+                'total_marks': exam_model.total_marks
+            })
+
+    exam_names = [item['exam'].name for item in list_of_completed_for_chart]
+    scores = [item['score'] for item in list_of_completed_for_chart]
+    total_marks = [item['total_marks'] for item in list_of_completed_for_chart]
+    
+    percentages = []
+    for i in range(len(scores)):
+        if total_marks[i] > 0:
+            percentages.append((scores[i] / total_marks[i]) * 100)
+        else:
+            percentages.append(0)
+
+    # Widgets Data
+    upcoming_exams = all_exams.exclude(name__in=completed_exams_list)[:3]
+    latest_result = completed_exams_qset.first()
+    latest_exam_model = None
+    if latest_result:
+        latest_exam_model = all_exams.filter(name=latest_result.examname).first()
+
+    total_score = sum(scores)
+    average_score = (total_score / len(scores)) if scores else 0
+    
+    context = {
+        'exam_names_json': json.dumps(exam_names),
+        'percentages_json': json.dumps(percentages),
+        'has_completed_exams': len(list_of_completed_for_chart) > 0,
+        'upcoming_exams': upcoming_exams,
+        'latest_result': latest_result,
+        'latest_exam_model': latest_exam_model,
+        'average_score': average_score,
+        'courses_enrolled_count': enrolled_courses.count(),
+        'exams_completed_count': len(list_of_completed_for_chart),
+    }
+    return render(request,'student/index.html', context)
 
 class Register(View):
     def get(self,request):
