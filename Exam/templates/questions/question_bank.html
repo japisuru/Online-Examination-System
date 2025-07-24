@@ -1,0 +1,61 @@
+{% extends 'base_faculty.html' %}
+{% block content %}
+<style>
+    .page-container {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-top: 40px;
+    }
+    .page-title {
+        font-size: 2.8em;
+        color: #4682B4;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .question-card {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .question-text {
+        font-size: 1.3em;
+        font-weight: 700;
+    }
+    .btn-edit, .btn-delete {
+        font-size: 0.9em;
+        padding: 5px 15px;
+        border-radius: 8px;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+    .btn-edit {
+        background-color: #ffc107;
+        color: #333;
+    }
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+<div class="page-container">
+    <h1 class="page-title">📖 My Question Bank</h1>
+    {% include 'partials/_messages.html' %}
+    {% for question in questions %}
+        <div class="question-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="question-text mb-0">{{ question.question }}</p>
+                <div>
+                    <a href="{% url 'edit_question' question.qno %}" class="btn btn-edit">Edit</a>
+                    <a href="{% url 'delete_question' question.qno %}" class="btn btn-delete">Delete</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p>You haven't created any questions yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

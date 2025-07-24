@@ -436,3 +436,30 @@ def add_questions_automatically(request):
                 messages.error(request, f"An error occurred: {e}")
 
     return render(request, 'exam/add_questions_automatically.html')
+
+@login_required(login_url='faculty-login')
+def question_bank(request):
+    questions = Question_DB.objects.filter(professor=request.user)
+    return render(request, 'questions/question_bank.html', {'questions': questions})
+
+@login_required(login_url='faculty-login')
+def edit_question(request, qno):
+    question = Question_DB.objects.get(qno=qno, professor=request.user)
+    if request.method == 'POST':
+        form = QForm(request.POST, instance=question)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Question updated successfully!')
+            return redirect('question_bank')
+    else:
+        form = QForm(instance=question)
+    return render(request, 'questions/edit_question.html', {'form': form})
+
+@login_required(login_url='faculty-login')
+def delete_question(request, qno):
+    question = Question_DB.objects.get(qno=qno, professor=request.user)
+    if request.method == 'POST':
+        question.delete()
+        messages.success(request, 'Question deleted successfully!')
+        return redirect('question_bank')
+    return render(request, 'questions/delete_question.html', {'question': question})
