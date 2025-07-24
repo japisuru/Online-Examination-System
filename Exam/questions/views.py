@@ -242,7 +242,7 @@ def appear_exam(request,id):
                 ans = "E"
             ques.choice = ans
             ques.save()
-            if ans.lower() == ques.answer.lower() or ans == ques.answer:
+            if ans.lower() == ques.choice.lower() or ans == ques.choice:
                 examScore = examScore + max_m
             i+=1
 
