@@ -113,6 +113,7 @@ def view_previousexams_prof(request):
         exams = Exam_Model.objects.filter(professor=prof)
     except Exam_Model.DoesNotExist:
         exams = {}
+    return render(request, 'exam/previousexam.html', {'exams': exams})
 
 @login_required(login_url='login')
 def student_view_previous(request):
@@ -142,6 +143,18 @@ def view_students_prof(request):
         examn = Exam_Model.objects.filter(professor=request.user)
     except Exam_Model.DoesNotExist:
         examn = {}
+    for student in students:
+        for ex in examn:
+            if StuExam_DB.objects.filter(student=student,examname=ex.name).exists():
+                student_name.append(student.username)
+                student_completed.append(ex.name)
+    for i in student_name:
+        if i not in dicts:
+            dicts[i] = [student_completed[count]]
+        else:
+            dicts[i].append(student_completed[count])
+        count+=1
+    return render(request,'exam/viewstudents.html',{'students':dicts})
 
 @login_required(login_url='faculty-login')
 def view_results_prof(request):
@@ -153,6 +166,15 @@ def view_results_prof(request):
         examn = Exam_Model.objects.filter(professor=professor)
     except Exam_Model.DoesNotExist:
         examn = {}
+    for student in students:
+        for ex in examn:
+            if StuExam_DB.objects.filter(student=student,examname=ex.name).exists():
+                score = StuExam_DB.objects.get(student=student,examname=ex.name).score
+                if student.username not in dicts:
+                    dicts[student.username] = [score]
+                else:
+                    dicts[student.username].append(score)
+    return render(request,'exam/resultsstudent.html',{'students':dicts})
 
 @login_required(login_url='login')
 def view_exams_student(request):
