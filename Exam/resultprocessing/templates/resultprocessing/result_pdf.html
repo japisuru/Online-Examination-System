@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Result</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        .container {
+            width: 100%;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .student-info {
+            margin-bottom: 20px;
+        }
+        .student-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .student-info th, .student-info td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .result-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .result-table th, .result-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .result-table th {
+            background-color: #f2f2f2;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Student Result</h1>
+        </div>
+        <div class="student-info">
+            <table>
+                <tr>
+                    <th>Student Name</th>
+                    <td>{{ student.name }}</td>
+                </tr>
+                <tr>
+                    <th>Program</th>
+                    <td>{{ student.program.name }}</td>
+                </tr>
+                <tr>
+                    <th>Year</th>
+                    <td>{{ student.year }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="result-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Semester</th>
+                        <th>Total Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td>{{ result.course.name }}</td>
+                        <td>{{ result.semester }}</td>
+                        <td>{{ result.total_score }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="footer">
+            <p>GPA: {{ gpa }}</p>
+            <p>CGPA: {{ cgpa }}</p>
+            <p>Class: {{ student_class }}</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -66,6 +66,8 @@
 
 <div class="page-container">
     <h1 class="page-title">My Results for {{ student.name }}</h1>
+    <a href="{% url 'student_result_pdf' student.id %}" class="btn btn-primary" style="margin-bottom: 20px;">Download as PDF</a>
+
 
     <div class="summary-bar">
         <div class="summary-item">

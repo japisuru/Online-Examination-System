@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Exam Review</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+            background-color: #f4f7f6;
+        }
+        .container {
+            padding: 30px;
+            border: 1px solid #e0e0e0;
+            background-color: #fff;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: #007bff;
+            font-size: 36px;
+            margin: 0;
+        }
+        .header p {
+            font-size: 18px;
+            color: #555;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .summary-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .summary-box h2 {
+            font-size: 22px;
+            color: #007bff;
+            margin-top: 0;
+        }
+        .summary-box p {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .question-section {
+            page-break-before: always;
+        }
+        .question-block {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        .question-text {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .option {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+        }
+        .correct-answer {
+            background-color: #e9f7ef;
+            border-left: 5px solid #28a745;
+        }
+        .wrong-answer {
+            background-color: #fbe9e7;
+            border-left: 5px solid #dc3545;
+        }
+        .chosen-answer {
+            font-weight: 700;
+        }
+        .icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .icon-correct { color: #28a745; }
+        .icon-incorrect { color: #dc3545; }
+        .explanation {
+            background-color: #eef2f7;
+            border: 1px solid #d0d8e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 15px;
+        }
+        .explanation-title {
+            font-weight: 700;
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Exam Review</h1>
+            <p><strong>Student:</strong> {% if student.get_full_name %}{{ student.get_full_name }}{% else %}{{ student.username }}{% endif %}</p>
+            <p><strong>Exam:</strong> {{ exam.name }}</p>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-box">
+                <h2>Final Score</h2>
+                <p>{{ score|floatformat:2 }} / {{ exam.total_marks }}</p>
+            </div>
+            <div class="summary-box">
+                <h2>Result</h2>
+                <p>{% if score|floatformat:2 >= exam.pass_marks|floatformat:2 %}Pass{% else %}Fail{% endif %}</p>
+            </div>
+        </div>
+
+        <div class="question-section">
+            {% for item in review_data %}
+            <div class="question-block">
+                <div class="question-text">{{ forloop.counter }}. {{ item.question_text }}</div>
+                
+                {% for key, value in item.options.items %}
+                <div class="option 
+                    {% if key == item.correct_choice %}correct-answer{% endif %}
+                    {% if key == item.student_choice and key != item.correct_choice %}wrong-answer{% endif %}">
+                    
+                    {% if key == item.correct_choice %}
+                        <span class="icon icon-correct">✔</span>
+                    {% elif key == item.student_choice %}
+                        <span class="icon icon-incorrect">✖</span>
+                    {% endif %}
+                    
+                    <strong>{{ key }}:</strong> {{ value.text }}
+                    
+                    {% if key == item.student_choice %}
+                        <span class="chosen-answer"> (Your Answer)</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="explanation">
+                    <p><span class="explanation-title">Explanation:</span> {{ item.correct_description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

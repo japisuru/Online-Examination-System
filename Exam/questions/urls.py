@@ -7,7 +7,8 @@ urlpatterns = [
     path('student/previous/', views.student_view_previous, name="student-previous"),
     path('student/appear/<int:id>', views.appear_exam, name="appear-exam"),
     path('student/result/<int:id>', views.result, name="result"),
-    path('student/review/<int:id>', views.review_exam, name="review_exam"),
+    path('student/review/<int:id>/', views.review_exam, name='review_exam'),
+    path('student/review/<int:id>/pdf/', views.review_exam_pdf, name="review_exam_pdf"),
     path('student/attendance/', views.view_students_attendance, name="view_students_attendance"),
 
     # Professor URLs (now course-specific)

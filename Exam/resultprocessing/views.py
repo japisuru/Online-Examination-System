@@ -1,4 +1,45 @@
 from django.shortcuts import render
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+
+# Create your views here.
+from .models import Student, Score, Program, ConfigMarks
+
+def student_result_pdf(request, student_id):
+    student = Student.objects.get(id=student_id)
+    scores = Score.objects.filter(student=student)
+
+    results = [
+        {
+            'course': score.course,
+            'semester': score.semester,
+            'total_score': score.total_score,
+        }
+        for score in scores
+    ]
+    gpa = calculate_gpa(scores)
+    cgpa = calculate_cgpa(student)
+    student_class = get_class(gpa)
+
+    context = {
+        'student': student,
+        'gpa': gpa,
+        'cgpa': cgpa,
+        'student_class': student_class,
+        'results': results
+    }
+
+    template = get_template('resultprocessing/result_pdf.html')
+    html = template.render(context)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="result_{student_id}.pdf"'
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
 
 # Create your views here.
 from .models import Student, Score, Program, ConfigMarks

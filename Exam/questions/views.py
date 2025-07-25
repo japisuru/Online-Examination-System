@@ -1,4 +1,6 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 from django.urls import reverse
 import requests
 import json
@@ -6,7 +8,6 @@ from .question_models import Question_DB
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.models import User
 from .models import *
-from django.contrib.auth.models import Group
 from student.models import *
 from django.utils import timezone
 from student.models import StuExam_DB,StuResults_DB
@@ -385,6 +386,55 @@ def review_exam(request, id):
         'review_data': review_data,
     }
     return render(request, 'exam/review_exam.html', context)
+
+def review_exam_pdf(request, id):
+    student = request.user
+    exam = Exam_Model.objects.get(pk=id)
+    stu_exam = StuExam_DB.objects.get(student=student, examname=exam.name, qpaper=exam.question_paper)
+    
+    student_questions = stu_exam.questions.all()
+    original_questions = exam.question_paper.questions.all()
+    
+    review_data = []
+    for i, sq in enumerate(student_questions):
+        original_q = original_questions[i]
+        options = {
+            "A": {'text': sq.optionA, 'desc': original_q.descriptionA},
+            "B": {'text': sq.optionB, 'desc': original_q.descriptionB},
+            "C": {'text': sq.optionC, 'desc': original_q.descriptionC},
+            "D": {'text': sq.optionD, 'desc': original_q.descriptionD},
+        }
+        correct_answer_text = sq.answer
+        correct_choice = next((key for key, value in options.items() if value['text'] == correct_answer_text), None)
+        
+        # Get the description for the correct answer
+        correct_description = ""
+        if correct_choice and options.get(correct_choice):
+            correct_description = options[correct_choice].get('desc', '')
+
+        review_data.append({
+            'question_text': sq.question,
+            'options': options,
+            'student_choice': sq.choice,
+            'correct_choice': correct_choice,
+            'correct_description': correct_description,
+        })
+
+    context = {
+        'student': student,
+        'exam': exam,
+        'review_data': review_data,
+        'score': stu_exam.score,
+    }
+    template = get_template('exam/review_exam_pdf.html')
+    html = template.render(context)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="review_{exam.id}.pdf"'
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
 
 @login_required(login_url='faculty-login')
 def add_questions_automatically(request, course_id):

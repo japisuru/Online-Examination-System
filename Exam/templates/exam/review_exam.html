@@ -64,6 +64,8 @@
 
 <div class="page-container">
     <h1 class="page-title">🔍 Reviewing: {{ exam.name }}</h1>
+    <a href="{% url 'review_exam_pdf' exam.id %}" class="btn btn-primary" style="margin-bottom: 20px;">Download as PDF</a>
+
 
     {% for item in review_data %}
         <div class="question-review-card">
